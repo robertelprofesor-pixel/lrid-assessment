@@ -1,0 +1,26 @@
+{
+  "meta": {
+    "product": "LRID",
+    "case_id": "LRID-20251220-0001",
+    "approval_id": "approval_LRID-20251220-0001",
+    "created_at": "2025-12-21T00:00:00.000Z",
+    "created_by": "operator",
+    "notes": "Approval decision recorded by operator. Human-in-the-loop gate."
+  },
+  "decision": {
+    "status": "DEBRIEF",
+    "operator_notes": "Approved for final report generation.",
+    "version_tag": "v1",
+    "lock_scoring": true
+  },
+  "overrides": {
+    "executive_summary": "",
+    "risk_notes": "",
+    "recommendations": ""
+  },
+  "audit": {
+    "decision_at": "2025-12-21T16:46:03.815Z",
+    "decision_by": "operator",
+    "reason_code": "STANDARD_APPROVAL"
+  }
+}

@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>LRID™ Operator Console</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;max-width:950px;margin:26px auto;padding:0 16px}
+    .card{border:1px solid #ddd;border-radius:14px;padding:16px;margin:14px 0}
+    .btn{background:#111;color:#fff;border:none;border-radius:12px;padding:12px 16px;font-weight:750;cursor:pointer}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .muted{color:#666;font-size:13px}
+    pre{white-space:pre-wrap;background:#f6f6f6;padding:12px;border-radius:12px;border:1px solid #e6e6e6;max-height:420px;overflow:auto}
+    code{background:#f3f3f3;padding:2px 6px;border-radius:8px}
+    .ok{padding:12px;border-radius:12px;background:#eef9ee;border:1px solid #bfe7bf}
+    .err{padding:12px;border-radius:12px;background:#fff0f0;border:1px solid #f0baba}
+    select{width:100%;padding:10px;border:1px solid #ccc;border-radius:12px}
+    .row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:end}
+    label{display:block;font-weight:650;margin-bottom:6px}
+  </style>
+</head>
+<body>
+  <h1>LRID™ Operator Console</h1>
+  <div class="muted">
+    Full 1-click pipeline: <code>responses → score → draft → approve(--auto) → payload → PDFs</code>
+  </div>
+
+  <div class="card">
+    <h2>Select case</h2>
+    <div class="row">
+      <div>
+        <label>responses_*.json</label>
+        <select id="responsesSelect"></select>
+        <div class="muted" style="margin-top:6px">This list is read from <code>/api/list</code>.</div>
+      </div>
+      <button class="btn" id="refreshBtn">Refresh</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Run FULL pipeline</h2>
+    <button class="btn" id="runBtn">Run LRID → Generate PDFs (1 click)</button>
+    <div id="status" style="margin-top:12px"></div>
+  </div>
+
+<script>
+const sel = document.getElementById("responsesSelect");
+const runBtn = document.getElementById("runBtn");
+const refreshBtn = document.getElementById("refreshBtn");
+const status = document.getElementById("status");
+
+function esc(s){return String(s||"").replace(/[&<>"']/g,m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));}
+
+async function loadList(){
+  status.innerHTML = "";
+  sel.innerHTML = `<option value="">Loading…</option>`;
+  const res = await fetch("/api/list");
+  const out = await res.json();
+  if(!out.ok){
+    sel.innerHTML = `<option value="">(error)</option>`;
+    status.innerHTML = `<div class="err"><b>Error:</b> ${esc(out.error || "unknown")}</div>`;
+    return;
+  }
+
+  const items = (out.data?.responses || []);
+  if(!items.length){
+    sel.innerHTML = `<option value="">No responses found in /data</option>`;
+    return;
+  }
+
+  sel.innerHTML = items.map(x => `<option value="${esc(x.name)}">${esc(x.name)} — ${esc(x.mtime)}</option>`).join("");
+}
+
+refreshBtn.addEventListener("click", loadList);
+
+runBtn.addEventListener("click", async ()=>{
+  const file = sel.value;
+  if(!file){
+    status.innerHTML = `<div class="err"><b>Select a responses_*.json first.</b></div>`;
+    return;
+  }
+
+  runBtn.disabled = true;
+  refreshBtn.disabled = true;
+  status.innerHTML = `<div class="muted">Running full pipeline…</div>`;
+
+  const res = await fetch("/api/run-full-pipeline", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ responses_file: file })
+  });
+
+  const out = await res.json();
+
+  if(!out.ok){
+    status.innerHTML = `<div class="err"><b>Error:</b> ${esc(out.error || "unknown")}<details style="margin-top:10px"><summary>Console output</summary><pre>${esc(out.console_output || "")}</pre></details></div>`;
+    runBtn.disabled = false;
+    refreshBtn.disabled = false;
+    return;
+  }
+
+  status.innerHTML = `
+    <div class="ok">
+      <b>DONE.</b> Case: <code>${esc(out.case_id || "")}</code><br/>
+      ${out.out_dir ? `Output folder: <code>${esc(out.out_dir)}</code><br/>` : ``}
+      Elapsed: <code>${esc(out.elapsed_seconds)}</code> sec
+      <details style="margin-top:10px">
+        <summary>Console output</summary>
+        <pre>${esc(out.console_output || "")}</pre>
+      </details>
+    </div>
+  `;
+
+  runBtn.disabled = false;
+  refreshBtn.disabled = false;
+});
+
+loadList();
+</script>
+</body>
+</html>

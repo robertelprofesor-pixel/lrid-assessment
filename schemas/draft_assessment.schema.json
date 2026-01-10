@@ -1,0 +1,140 @@
+{
+  "meta": {
+    "case_id": "LRID-YYYYMMDD-XXXX",
+    "instrument_id": "LRID",
+    "instrument_version": "1.0",
+    "generated_at": "2025-12-20T18:30:00+04:00",
+    "generated_by": {
+      "engine": "lrid-draft-engine",
+      "engine_version": "0.1.0"
+    }
+  },
+
+  "validation": {
+    "status": "PASS",
+    "hard_errors": [],
+    "soft_warnings": [],
+    "completeness": {
+      "expected_questions": 0,
+      "answered_questions": 0,
+      "missing_question_ids": []
+    },
+    "timing_checks": {
+      "duration_seconds": 0,
+      "min_expected_seconds": 0,
+      "flag_too_fast": false
+    },
+    "pattern_checks": {
+      "flag_straight_lining": false,
+      "flag_low_variance": false,
+      "notes": ""
+    }
+  },
+
+  "confidence": {
+    "level": "High",
+    "score": 0.0,
+    "drivers": [],
+    "notes": ""
+  },
+
+  "consistency_checks": {
+    "status": "OK",
+    "items": [
+      {
+        "cc_id": "CC_01",
+        "description": "Mirror-item alignment / reverse-coded consistency",
+        "result": "OK",
+        "severity": "LOW",
+        "evidence": {
+          "question_ids": [],
+          "observations": ""
+        }
+      }
+    ]
+  },
+
+  "red_flags": {
+    "high_stakes": {
+      "status": "OFF",
+      "triggers": []
+    },
+    "items": [
+      {
+        "rf_id": "RF_ETH_01",
+        "title": "Procedural exception normalization",
+        "status": "NONE",
+        "severity": "MEDIUM",
+        "evidence": {
+          "question_ids": [],
+          "snippets": []
+        },
+        "system_rationale": ""
+      }
+    ]
+  },
+
+  "draft_scoring": {
+    "dimension_scores": {
+      "DI": 0.0,
+      "RP": 0.0,
+      "MA": 0.0,
+      "AC": 0.0,
+      "PR": 0.0,
+      "ED": 0.0
+    },
+    "dimension_bands": {
+      "DI": "Mixed / Context-dependent",
+      "RP": "Mixed / Context-dependent",
+      "MA": "Mixed / Context-dependent",
+      "AC": "Mixed / Context-dependent",
+      "PR": "Mixed / Context-dependent",
+      "ED": "Mixed / Context-dependent"
+    },
+    "aggregate_scores": {
+      "hsri": 0.0,
+      "oi": 0.0
+    },
+    "aggregate_bands": {
+      "hsri": "Mixed / Context-dependent",
+      "oi": "Mixed / Context-dependent"
+    },
+    "scoring_notes": ""
+  },
+
+  "draft_narrative": {
+    "executive_thesis_sentence": "",
+    "top_assets": [],
+    "top_risks": [],
+    "actions_30_days": [],
+    "hr_role_fit_summary": "",
+    "academic_profile_statement": "",
+    "academic_tradeoffs": "",
+    "academic_cc_overview": ""
+  },
+
+  "explainability": {
+    "dimension_drivers": [
+      {
+        "dimension": "ED",
+        "drivers": [
+          {
+            "type": "rule",
+            "rule_id": "ED_RULE_03",
+            "impact": -0.3,
+            "evidence": {
+              "question_ids": [],
+              "observations": ""
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  "handoff": {
+    "recommended_expert_action": "REVIEW",
+    "recommended_reason": "Medium confidence due to CC deviations and ED risk signals.",
+    "auto_generate_payload_allowed": false
+  }
+}

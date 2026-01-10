@@ -1,0 +1,173 @@
+{
+  "case_id": "LRID-20251221-9457",
+  "tool": "LRID™",
+  "version": "1.0-full22",
+  "timestamps": {
+    "started_at": "2025-12-21T09:43:48.115Z",
+    "submitted_at": "2025-12-21T09:47:01.615Z"
+  },
+  "respondent": {
+    "name": "",
+    "email": "",
+    "organization": ""
+  },
+  "answers": [
+    {
+      "question_id": "DI-01",
+      "dimension_id": "DI",
+      "dimension_name": "Decision Integrity",
+      "type": "single_choice",
+      "value": "1"
+    },
+    {
+      "question_id": "DI-02",
+      "dimension_id": "DI",
+      "dimension_name": "Decision Integrity",
+      "type": "scale",
+      "value": "2"
+    },
+    {
+      "question_id": "DI-13",
+      "dimension_id": "DI",
+      "dimension_name": "Decision Integrity",
+      "type": "single_choice",
+      "value": "1"
+    },
+    {
+      "question_id": "DI-14",
+      "dimension_id": "DI",
+      "dimension_name": "Decision Integrity",
+      "type": "single_choice",
+      "value": "2"
+    },
+    {
+      "question_id": "RP-03",
+      "dimension_id": "RP",
+      "dimension_name": "Resilience Under Pressure",
+      "type": "single_choice",
+      "value": "1"
+    },
+    {
+      "question_id": "RP-04",
+      "dimension_id": "RP",
+      "dimension_name": "Resilience Under Pressure",
+      "type": "scale",
+      "value": "2"
+    },
+    {
+      "question_id": "RP-15",
+      "dimension_id": "RP",
+      "dimension_name": "Resilience Under Pressure",
+      "type": "single_choice",
+      "value": "1"
+    },
+    {
+      "question_id": "RP-16",
+      "dimension_id": "RP",
+      "dimension_name": "Resilience Under Pressure",
+      "type": "single_choice",
+      "value": "0"
+    },
+    {
+      "question_id": "MA-05",
+      "dimension_id": "MA",
+      "dimension_name": "Manipulation Awareness",
+      "type": "single_choice",
+      "value": "1"
+    },
+    {
+      "question_id": "MA-06",
+      "dimension_id": "MA",
+      "dimension_name": "Manipulation Awareness",
+      "type": "scale",
+      "value": "4"
+    },
+    {
+      "question_id": "MA-17",
+      "dimension_id": "MA",
+      "dimension_name": "Manipulation Awareness",
+      "type": "single_choice",
+      "value": "1"
+    },
+    {
+      "question_id": "MA-18",
+      "dimension_id": "MA",
+      "dimension_name": "Manipulation Awareness",
+      "type": "single_choice",
+      "value": "1"
+    },
+    {
+      "question_id": "AC-07",
+      "dimension_id": "AC",
+      "dimension_name": "Attention Control",
+      "type": "single_choice",
+      "value": "1"
+    },
+    {
+      "question_id": "AC-08",
+      "dimension_id": "AC",
+      "dimension_name": "Attention Control",
+      "type": "open_text",
+      "value": "nie wiem co tu napisać"
+    },
+    {
+      "question_id": "AC-19",
+      "dimension_id": "AC",
+      "dimension_name": "Attention Control",
+      "type": "single_choice",
+      "value": "1"
+    },
+    {
+      "question_id": "AC-20",
+      "dimension_id": "AC",
+      "dimension_name": "Attention Control",
+      "type": "single_choice",
+      "value": "1"
+    },
+    {
+      "question_id": "PR-09",
+      "dimension_id": "PR",
+      "dimension_name": "Power & Responsibility Balance",
+      "type": "single_choice",
+      "value": "1"
+    },
+    {
+      "question_id": "PR-10",
+      "dimension_id": "PR",
+      "dimension_name": "Power & Responsibility Balance",
+      "type": "single_choice",
+      "value": "1"
+    },
+    {
+      "question_id": "PR-21",
+      "dimension_id": "PR",
+      "dimension_name": "Power & Responsibility Balance",
+      "type": "single_choice",
+      "value": "3"
+    },
+    {
+      "question_id": "ED-12",
+      "dimension_id": "ED",
+      "dimension_name": "Ethical Drift Risk",
+      "type": "single_choice",
+      "value": "1"
+    },
+    {
+      "question_id": "ED-11",
+      "dimension_id": "ED",
+      "dimension_name": "Ethical Drift Risk",
+      "type": "open_text",
+      "value": "podobnie jak wcześniej"
+    },
+    {
+      "question_id": "ED-22",
+      "dimension_id": "ED",
+      "dimension_name": "Ethical Drift Risk",
+      "type": "single_choice",
+      "value": "3"
+    }
+  ],
+  "raw": {
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  }
+}

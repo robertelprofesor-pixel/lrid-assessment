@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LRID HR Report</title>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      margin: 24px;
+      color: #111;
+    }
+    h1, h2, h3 {
+      margin-bottom: 8px;
+    }
+    p {
+      line-height: 1.5;
+    }
+    .meta {
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 20px;
+    }
+    .box {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>LRID – HR / Talent Report</h1>
+
+<div class="meta">
+  <b>Subject:</b> {{meta.subject_name}}<br>
+  <b>Date:</b> {{meta.report_date}}<br>
+  <b>Version:</b> {{meta.version}}<br>
+  <b>Confidence:</b> {{confidence.level}}
+</div>
+
+<div class="box">
+  <h2>Role Fit Snapshot</h2>
+  <p>{{hr.role_fit_summary}}</p>
+</div>
+
+<div class="box">
+  <h2>Key Strengths & Safeguards</h2>
+  <ul>
+    {{lists.hr_strengths_safeguards_li}}
+  </ul>
+</div>
+
+<div class="box">
+  <h2>Behavioral Profile (6 Dimensions)</h2>
+  {{blocks.hr_dimension_cards}}
+</div>
+
+<div class="box">
+  <h2>Development Risks</h2>
+  {{blocks.hr_risks}}
+</div>
+
+<div class="box">
+  <h2>Development Actions</h2>
+  <ul>
+    {{lists.hr_development_actions_li}}
+  </ul>
+</div>
+
+<div class="box">
+  <h2>Suggested Interventions</h2>
+  <ul>
+    {{lists.hr_interventions_li}}
+  </ul>
+</div>
+
+<p style="font-size:11px;color:#666;">
+  {{meta.data_ethics_note}}
+</p>
+
+</body>
+</html>

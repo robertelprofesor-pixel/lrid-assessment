@@ -1,0 +1,66 @@
+{
+  "instrument_id": "LRID",
+  "instrument_version": "1.0",
+  "scale": {
+    "likert_5_min": 1,
+    "likert_5_max": 5
+  },
+  "reverse_scored_question_ids": [
+    "RP_04"
+  ],
+  "multiple_choice_scores": {
+    "DI_01": { "A": 1, "B": 3, "C": 4, "D": 5 },
+    "RP_03": { "A": 4, "B": 4, "C": 4, "D": 4 },
+
+    "MA_05": { "A": 2, "B": 4, "C": 5, "D": 4 },
+
+    "AC_07": { "A": 1, "B": 3, "C": 5, "D": 5 },
+
+    "PR_09": { "A": 4, "B": 5, "C": 3, "D": 2 },
+    "PR_10": { "A": 5, "B": 4, "C": 2, "D": 1 },
+
+    "ED_12": { "A": 1, "B": 5 },
+
+    "DI_13": { "A": 1, "B": 3, "C": 5, "D": 4 },
+    "DI_14": { "A": 2, "B": 2, "C": 5, "D": 4 },
+
+    "RP_15": { "A": 4, "B": 5, "C": 4, "D": 1 },
+    "RP_16": { "A": 1, "B": 4, "C": 5, "D": 4 },
+
+    "MA_17": { "A": 2, "B": 5, "C": 5, "D": 4 },
+    "MA_18": { "A": 1, "B": 5, "C": 5, "D": 4 },
+
+    "AC_19": { "A": 5, "B": 2, "C": 3, "D": 1 },
+    "AC_20": { "A": 1, "B": 5, "C": 2, "D": 3 },
+
+    "PR_21": { "A": 2, "B": 5, "C": 1, "D": 4 },
+
+    "ED_22": { "A": 1, "B": 5, "C": 3, "D": 4 }
+  },
+  "open_text_handling": {
+    "default_score": null,
+    "min_chars_enforced": true
+  },
+  "dimension_aggregation": {
+    "method": "mean_of_scored_items",
+    "min_items_required": 2
+  },
+  "dimension_weights": {
+    "DI": 1.0,
+    "RP": 1.0,
+    "MA": 1.0,
+    "AC": 1.0,
+    "PR": 1.0,
+    "ED": 1.0
+  },
+  "aggregate_indices": {
+    "OI": {
+      "label": "Operational Integrity Index",
+      "formula": "mean(DI, RP, AC)"
+    },
+    "HSRI": {
+      "label": "High-Stakes Resilience & Integrity Index",
+      "formula": "mean(DI, MA, PR, ED)"
+    }
+  }
+}

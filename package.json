@@ -1,0 +1,17 @@
+{
+  "name": "lrid-decision-intelligence",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "postinstall": "npx playwright install --with-deps chromium",
+    "serve:intake": "node server.js",
+    "pdf": "node index.js",
+    "approve:auto": "node approve_latest.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "playwright": "^1.57.0"
+  }
+}

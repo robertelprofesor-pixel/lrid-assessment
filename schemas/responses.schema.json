@@ -1,0 +1,65 @@
+{
+  "meta": {
+    "case_id": "LRID-20251220-0001",
+    "instrument_id": "LRID",
+    "instrument_version": "1.0",
+    "language": "en",
+    "timezone": "Asia/Dubai",
+    "created_at": "2025-12-20T18:10:00+04:00",
+    "channel": "web_form"
+  },
+
+  "respondent": {
+    "subject_name": "Anonymous Senior Leader",
+    "email": "client@example.com",
+    "organization": "Confidential",
+    "role_title": "COO",
+    "industry": "Services",
+    "country": "UAE",
+    "consent": {
+      "terms_accepted": true,
+      "data_processing_accepted": true,
+      "timestamp": "2025-12-20T18:10:02+04:00"
+    }
+  },
+
+  "timing": {
+    "started_at": "2025-12-20T18:10:05+04:00",
+    "submitted_at": "2025-12-20T18:58:40+04:00",
+    "duration_seconds": 2900,
+    "device": "desktop",
+    "session_id": "sess_9b2f3a1"
+  },
+
+  "answers": [
+    {
+      "question_id": "DI_01",
+      "dimension": "DI",
+      "type": "likert_5",
+      "prompt_ref": "DI_01",
+      "response": 4
+    },
+    {
+      "question_id": "DI_02",
+      "dimension": "DI",
+      "type": "multiple_choice",
+      "prompt_ref": "DI_02",
+      "response": "B"
+    },
+    {
+      "question_id": "ED_03",
+      "dimension": "ED",
+      "type": "open_text",
+      "prompt_ref": "ED_03",
+      "response": "In rare cases I may bypass a step if the deadline is non-negotiable, but I document it afterwards."
+    },
+
+    {
+      "question_id": "CC_01",
+      "dimension": "CC",
+      "type": "consistency_check",
+      "prompt_ref": "CC_01",
+      "response": 2
+    }
+  ]
+}

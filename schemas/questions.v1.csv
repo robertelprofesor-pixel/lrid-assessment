@@ -1,0 +1,45 @@
+question_id,dimension,type,required,min_chars,text_en,text_pl,options_json,reverse_scored
+
+DI_01,DI,multiple_choice,true,,As a leader, you receive information that is formally legal but ethically uncomfortable and could provide strategic advantage. What do you do first?,,,"[{""value"":""A"",""label_en"":""Use the information – responsibility lies with the source""},{""value"":""B"",""label_en"":""Consult informally with a trusted colleague""},{""value"":""C"",""label_en"":""Delay the decision and seek an alternative source""},{""value"":""D"",""label_en"":""Reject using the information regardless of cost""}]",false
+
+DI_02,DI,likert_5,true,,The board expects a fast decision. You know more time would improve quality, but delay may be seen as lack of decisiveness.,,,false
+
+RP_03,RP,multiple_choice,true,,In the same week a key manager leaves, a strategic project slips, and media pressure escalates. Which area gets your attention first?,,,"[{""value"":""A"",""label_en"":""People""},{""value"":""B"",""label_en"":""External communication""},{""value"":""C"",""label_en"":""The project""},{""value"":""D"",""label_en"":""Internal damage control""}]",false
+
+RP_04,RP,likert_5,true,,Under overload, how do you usually react internally? (from focused mobilisation to irritation and decision shortcutting),,,false
+
+MA_05,MA,multiple_choice,true,,A powerful stakeholder presents a solution as the only realistic option, supported by authority and time pressure. Your reaction?,,,"[{""value"":""A"",""label_en"":""Accept – pragmatism is required""},{""value"":""B"",""label_en"":""Ask for alternatives""},{""value"":""C"",""label_en"":""Check who actually benefits""},{""value"":""D"",""label_en"":""Postpone despite pressure""}]",false
+
+MA_06,MA,likert_5,true,,How often do you change your position not because of new data, but because the power context has shifted?,,,false
+
+AC_07,AC,multiple_choice,true,,During the day you receive many urgent inputs. Which best describes your style?,,,"[{""value"":""A"",""label_en"":""I react continuously""},{""value"":""B"",""label_en"":""I delegate most of them""},{""value"":""C"",""label_en"":""I separate urgent from important""},{""value"":""D"",""label_en"":""I block access and return to priorities""}]",false
+
+AC_08,AC,open_text,true,30,What most often steals your attention in critical moments?,,,false
+
+PR_09,PR,multiple_choice,true,,A decision is formally yours, but the team is divided. What role do you take?,,,"[{""value"":""A"",""label_en"":""I decide alone""},{""value"":""B"",""label_en"":""I build consensus""},{""value"":""C"",""label_en"":""I delegate responsibility""},{""value"":""D"",""label_en"":""I postpone the decision""}]",false
+
+PR_10,PR,multiple_choice,true,,When was the last time you changed a decision because someone lower in the hierarchy was right?,,,"[{""value"":""A"",""label_en"":""Recently""},{""value"":""B"",""label_en"":""A few times a year""},{""value"":""C"",""label_en"":""Rarely""},{""value"":""D"",""label_en"":""I don’t recall""}]",false
+
+ED_11,ED,open_text,true,30,A small deviation from standards brings short-term benefit and no resistance. What is your first thought?,,,false
+
+ED_12,ED,multiple_choice,true,,Which statement is closer to you?,,,"[{""value"":""A"",""label_en"":""The goal sometimes justifies the means""},{""value"":""B"",""label_en"":""The means define the leader, not the goal""}]",false
+
+DI_13,DI,multiple_choice,true,,You can save a key contract by accepting a clause that is industry standard but misleading for the client. What do you do?,,,"[{""value"":""A"",""label_en"":""Accept – everyone does it""},{""value"":""B"",""label_en"":""Accept but clarify in an annex""},{""value"":""C"",""label_en"":""Renegotiate even at the cost of the deal""},{""value"":""D"",""label_en"":""Escalate to legal/compliance and pause""}]",false
+
+DI_14,DI,multiple_choice,true,,A trusted director makes a mistake that could surface. The team suggests managing the narrative. How do you react?,,,"[{""value"":""A"",""label_en"":""Protect the person – stability matters""},{""value"":""B"",""label_en"":""Minimise risk and tidy communication""},{""value"":""C"",""label_en"":""Choose full transparency even if painful""},{""value"":""D"",""label_en"":""Disclose only what is strictly necessary""}]",false
+
+RP_15,RP,multiple_choice,true,,When you are chronically overloaded, which area degrades first?,,,"[{""value"":""A"",""label_en"":""Empathy and patience""},{""value"":""B"",""label_en"":""Decision quality (shortcuts)""},{""value"":""C"",""label_en"":""Control and micromanagement""},{""value"":""D"",""label_en"":""Nothing – I function the same""}]",false
+
+RP_16,RP,multiple_choice,true,,After a very difficult week, what do you do in the first 24 hours?,,,"[{""value"":""A"",""label_en"":""Work more – cannot afford to slow down""},{""value"":""B"",""label_en"":""Sleep and disconnect""},{""value"":""C"",""label_en"":""Conduct a quick AAR, then rest""},{""value"":""D"",""label_en"":""Meet people and sense the temperature""}]",false
+
+MA_17,MA,multiple_choice,true,,You receive a polished presentation with selective data and strong pressure to decide. Your first move?,,,"[{""value"":""A"",""label_en"":""Accept and negotiate details""},{""value"":""B"",""label_en"":""Request raw data and methodology""},{""value"":""C"",""label_en"":""Ask for a devil’s advocate case""},{""value"":""D"",""label_en"":""Delay – it smells wrong""}]",false
+
+MA_18,MA,multiple_choice,true,,A stakeholder says: “If we don’t do this now, we’re finished.” No data, high conviction. What do you do?,,,"[{""value"":""A"",""label_en"":""Give in – risk is too high""},{""value"":""B"",""label_en"":""Ask three questions: data, source, alternatives""},{""value"":""C"",""label_en"":""Run a fast 2x2 scenario with the team""},{""value"":""D"",""label_en"":""Limit scope and run a test step""}]",false
+
+AC_19,AC,multiple_choice,true,,Your organisation normalises interruption and urgency. What do you do as a leader?,,,"[{""value"":""A"",""label_en"":""Introduce focus blocks and escalation rules""},{""value"":""B"",""label_en"":""Increase control meetings""},{""value"":""C"",""label_en"":""Enforce more reporting""},{""value"":""D"",""label_en"":""Trust it will self-correct""}]",false
+
+AC_20,AC,multiple_choice,true,,In a crisis you have 30 seconds to define priority for the team. Which is closer?,,,"[{""value"":""A"",""label_en"":""Do everything necessary""},{""value"":""B"",""label_en"":""Protect people and continuity first""},{""value"":""C"",""label_en"":""Save KPIs – that’s what we’re judged on""},{""value"":""D"",""label_en"":""Wait for full data to avoid mistakes""}]",false
+
+PR_21,PR,multiple_choice,true,,Someone publicly challenges your decision in a meeting. What do you do?,,,"[{""value"":""A"",""label_en"":""Shut it down – return later""},{""value"":""B"",""label_en"":""Invite argument and discussion""},{""value"":""C"",""label_en"":""Treat it as disloyalty and react hard""},{""value"":""D"",""label_en"":""Move to 1:1 and separate emotion from merit""}]",false
+
+ED_22,ED,multiple_choice,true,,You see small ethical deviations becoming normalised in the team. Your natural reaction?,,,"[{""value"":""A"",""label_en"":""Ignore – delivery matters""},{""value"":""B"",""label_en"":""Stop it immediately and name the standard""},{""value"":""C"",""label_en"":""Allow exceptions with a minimum threshold""},{""value"":""D"",""label_en"":""Trigger audit/compliance and reset process""}]",false

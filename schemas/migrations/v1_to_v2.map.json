@@ -1,0 +1,13 @@
+{
+  "from_version": "1.0",
+  "to_version": "2.0",
+  "question_id_map": {
+    "DI_01": "DI_01",
+    "ED_03": "ED_03",
+    "MA_02": "MA_02"
+  },
+  "dropped_question_ids": ["DI_99"],
+  "scale_changes": {
+    "likert_5_to_likert_7": []
+  }
+}

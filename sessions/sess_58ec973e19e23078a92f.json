@@ -1,0 +1,172 @@
+{
+  "sessionId": "sess_58ec973e19e23078a92f",
+  "source": "direct",
+  "productId": null,
+  "email": null,
+  "startedAt": "2026-01-10T10:42:01.966Z",
+  "completedAt": "2026-01-10T10:43:04.184Z",
+  "lastUpdatedAt": "2026-01-10T10:43:04.184Z",
+  "progress": {
+    "currentIndex": 22,
+    "totalQuestions": 22
+  },
+  "respondent": {
+    "name": "",
+    "email": "",
+    "organization": ""
+  },
+  "responses": [
+    {
+      "questionId": "DI-01",
+      "timeMs": 3276,
+      "answeredAt": "2026-01-10T10:42:05.270Z",
+      "valueScore": 5,
+      "optionLabel": "Reject using it regardless of cost"
+    },
+    {
+      "questionId": "DI-02",
+      "timeMs": 1436,
+      "answeredAt": "2026-01-10T10:42:06.712Z",
+      "valueScore": 5,
+      "optionLabel": "5 — Very high"
+    },
+    {
+      "questionId": "DI-13",
+      "timeMs": 1378,
+      "answeredAt": "2026-01-10T10:42:08.096Z",
+      "valueScore": 4,
+      "optionLabel": "Escalate to compliance/legal and pause the signature"
+    },
+    {
+      "questionId": "DI-14",
+      "timeMs": 1078,
+      "answeredAt": "2026-01-10T10:42:09.179Z",
+      "valueScore": 4,
+      "optionLabel": "Verify facts and disclose only what is necessary"
+    },
+    {
+      "questionId": "RP-03",
+      "timeMs": 1212,
+      "answeredAt": "2026-01-10T10:42:10.396Z",
+      "valueScore": 3,
+      "optionLabel": "Internal damage control first"
+    },
+    {
+      "questionId": "RP-04",
+      "timeMs": 2278,
+      "answeredAt": "2026-01-10T10:42:12.679Z",
+      "valueScore": 5,
+      "optionLabel": "5 — Very high"
+    },
+    {
+      "questionId": "RP-15",
+      "timeMs": 1545,
+      "answeredAt": "2026-01-10T10:42:14.229Z",
+      "valueScore": 1,
+      "optionLabel": "Nothing drops — I operate the same"
+    },
+    {
+      "questionId": "RP-16",
+      "timeMs": 1627,
+      "answeredAt": "2026-01-10T10:42:15.862Z",
+      "valueScore": 4,
+      "optionLabel": "Meet people and ‘take the temperature’"
+    },
+    {
+      "questionId": "MA-05",
+      "timeMs": 1279,
+      "answeredAt": "2026-01-10T10:42:17.146Z",
+      "valueScore": 4,
+      "optionLabel": "Delay decision despite pressure"
+    },
+    {
+      "questionId": "MA-06",
+      "timeMs": 1278,
+      "answeredAt": "2026-01-10T10:42:18.429Z",
+      "valueScore": 5,
+      "optionLabel": "5 — Very high"
+    },
+    {
+      "questionId": "MA-17",
+      "timeMs": 1861,
+      "answeredAt": "2026-01-10T10:42:20.296Z",
+      "valueScore": 4,
+      "optionLabel": "Delay the decision — ‘something smells off’"
+    },
+    {
+      "questionId": "MA-18",
+      "timeMs": 1645,
+      "answeredAt": "2026-01-10T10:42:21.946Z",
+      "valueScore": 4,
+      "optionLabel": "Reduce scope to a minimum and run a test step"
+    },
+    {
+      "questionId": "AC-07",
+      "timeMs": 8528,
+      "answeredAt": "2026-01-10T10:42:30.480Z",
+      "valueScore": 4,
+      "optionLabel": "Block access and return strictly to priorities"
+    },
+    {
+      "questionId": "AC-08",
+      "timeMs": 16760,
+      "answeredAt": "2026-01-10T10:42:47.247Z",
+      "text": "asfasfasfas aasasdasd"
+    },
+    {
+      "questionId": "AC-19",
+      "timeMs": 2243,
+      "answeredAt": "2026-01-10T10:42:49.496Z",
+      "valueScore": 1,
+      "optionLabel": "Trust it will self-correct"
+    },
+    {
+      "questionId": "AC-20",
+      "timeMs": 1595,
+      "answeredAt": "2026-01-10T10:42:51.096Z",
+      "valueScore": 3,
+      "optionLabel": "‘Wait for full data to avoid mistakes’"
+    },
+    {
+      "questionId": "PR-09",
+      "timeMs": 1645,
+      "answeredAt": "2026-01-10T10:42:52.746Z",
+      "valueScore": 1,
+      "optionLabel": "Delay the decision"
+    },
+    {
+      "questionId": "PR-10",
+      "timeMs": 1461,
+      "answeredAt": "2026-01-10T10:42:54.212Z",
+      "valueScore": 1,
+      "optionLabel": "I don’t recall"
+    },
+    {
+      "questionId": "PR-21",
+      "timeMs": 1778,
+      "answeredAt": "2026-01-10T10:42:55.996Z",
+      "valueScore": 4,
+      "optionLabel": "Move to 1:1 and separate emotion from merit"
+    },
+    {
+      "questionId": "ED-12",
+      "timeMs": 2161,
+      "answeredAt": "2026-01-10T10:42:58.162Z",
+      "valueScore": 5,
+      "optionLabel": "The means define the leader, not the goal"
+    },
+    {
+      "questionId": "ED-11",
+      "timeMs": 4245,
+      "answeredAt": "2026-01-10T10:43:02.413Z",
+      "text": "asasdasdasdasdasd"
+    },
+    {
+      "questionId": "ED-22",
+      "timeMs": 1761,
+      "answeredAt": "2026-01-10T10:43:04.179Z",
+      "valueScore": 4,
+      "optionLabel": "Commission an audit/compliance reset"
+    }
+  ]
+}
