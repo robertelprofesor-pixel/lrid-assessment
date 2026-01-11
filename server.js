@@ -1,175 +1,221 @@
+/**
+ * LRID™ server.js (Railway-ready)
+ * - Uses persistent volume at /data (STORAGE_ROOT) when available
+ * - Stores: /data/data (responses, drafts, payload.json), /data/approvals, /data/out
+ * - Serves: /out/* PDFs and /review panel
+ */
+
+const express = require("express");
 const fs = require("fs");
 const path = require("path");
-const express = require("express");
 const { execSync } = require("child_process");
 
 const app = express();
-
-// IMPORTANT for Railway: listen on process.env.PORT and bind 0.0.0.0
-const PORT = Number(process.env.PORT || 3000);
-const HOST = "0.0.0.0";
+app.use(express.json({ limit: "2mb" }));
 
 // =======================
-// Middleware
+// Env + Paths
 // =======================
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true }));
+const PORT = process.env.PORT ? Number(process.env.PORT) : 8080;
+const HOST = process.env.HOST || "0.0.0.0";
 
-// Basic request log (helps debug Railway)
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} ${req.method} ${req.url}`);
-  next();
-});
+// Prefer Railway volume mount path if present; fallback to /data; fallback to repo local
+const DEFAULT_STORAGE =
+  process.env.RAILWAY_VOLUME_MOUNT_PATH ||
+  process.env.VOLUME_MOUNT_PATH ||
+  "/data";
 
-// Disable caching (prevents stale JS/HTML)
-app.use((req, res, next) => {
-  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
-  res.setHeader("Pragma", "no-cache");
-  res.setHeader("Expires", "0");
-  next();
-});
+const STORAGE_ROOT =
+  process.env.STORAGE_ROOT ||
+  (fs.existsSync(DEFAULT_STORAGE) ? DEFAULT_STORAGE : path.join(__dirname));
 
-// =======================
-// Storage dirs (support Railway Volume)
-// =======================
-const STORAGE_ROOT = process.env.STORAGE_ROOT || "/data";
-
-// You appear to be using these in Railway logs:
 const DATA_DIR = process.env.DATA_DIR || path.join(STORAGE_ROOT, "data");
 const APPROVALS_DIR = process.env.APPROVALS_DIR || path.join(STORAGE_ROOT, "approvals");
 const OUT_DIR = process.env.OUT_DIR || path.join(STORAGE_ROOT, "out");
 
-// Ensure dirs exist
-function ensureDir(p) {
-  if (!fs.existsSync(p)) fs.mkdirSync(p, { recursive: true });
-}
-ensureDir(DATA_DIR);
-ensureDir(APPROVALS_DIR);
-ensureDir(OUT_DIR);
-
-// =======================
-// Static hosting
-// =======================
-// Serve UI from /web in the repo
-app.use(express.static(path.join(__dirname, "web"))); // index.html, intake.js, review.html, review.js
-app.use("/config", express.static(path.join(__dirname, "config"))); // questions JSON
-
-// Serve generated PDFs from volume out dir
-app.use("/out", express.static(OUT_DIR));
+// Repo (read-only) paths
+const WEB_DIR = process.env.WEB_DIR || path.join(__dirname, "web");
+const CONFIG_DIR = process.env.CONFIG_DIR || path.join(__dirname, "config");
+const TEMPLATES_DIR = process.env.TEMPLATES_DIR || path.join(__dirname, "templates");
 
 // =======================
 // Helpers
 // =======================
+function ensureDir(p) {
+  if (!fs.existsSync(p)) fs.mkdirSync(p, { recursive: true });
+}
+
 function readJSON(p) {
-  return JSON.parse(fs.readFileSync(p, "utf8"));
+  return JSON.parse(fs.readFileSync(p, "utf-8"));
 }
 
-function writeJSON(p, data) {
-  fs.writeFileSync(p, JSON.stringify(data, null, 2), "utf8");
-}
-
-function safeExec(cmd) {
-  try {
-    return execSync(cmd, { cwd: __dirname, stdio: "pipe" }).toString("utf8");
-  } catch (e) {
-    const out =
-      (e.stdout ? e.stdout.toString("utf8") : "") +
-      (e.stderr ? e.stderr.toString("utf8") : "");
-    throw new Error(out || e.message);
-  }
-}
-
-function isSafeFilename(name) {
-  return (
-    typeof name === "string" &&
-    name.length > 0 &&
-    !name.includes("..") &&
-    !name.includes("/") &&
-    !name.includes("\\")
-  );
+function writeJSON(p, obj) {
+  ensureDir(path.dirname(p));
+  fs.writeFileSync(p, JSON.stringify(obj, null, 2), "utf-8");
 }
 
 function listFilesSorted(dir, prefix) {
   if (!fs.existsSync(dir)) return [];
   return fs
     .readdirSync(dir)
-    .filter((f) => (prefix ? f.startsWith(prefix) : true))
-    .map((f) => ({
-      file: f,
-      mtime: fs.statSync(path.join(dir, f)).mtime.getTime()
-    }))
+    .filter((f) => f.startsWith(prefix) && f.endsWith(".json"))
+    .map((f) => ({ f, mtime: fs.statSync(path.join(dir, f)).mtime.getTime() }))
     .sort((a, b) => b.mtime - a.mtime)
-    .map((x) => x.file);
+    .map((x) => x.f);
+}
+
+function listFoldersSorted(dir, prefix) {
+  if (!fs.existsSync(dir)) return [];
+  return fs
+    .readdirSync(dir)
+    .filter((f) => f.startsWith(prefix))
+    .map((f) => {
+      const full = path.join(dir, f);
+      if (!fs.existsSync(full)) return null;
+      if (!fs.statSync(full).isDirectory()) return null;
+      return { folder: f, mtime: fs.statSync(full).mtime.getTime() };
+    })
+    .filter(Boolean)
+    .sort((a, b) => b.mtime - a.mtime)
+    .map((x) => x.folder);
+}
+
+// IMPORTANT: pass storage env to child scripts so they write/read /data/*
+function safeExec(cmd) {
+  const env = {
+    ...process.env,
+    STORAGE_ROOT,
+    DATA_DIR,
+    APPROVALS_DIR,
+    OUT_DIR,
+    WEB_DIR,
+    CONFIG_DIR,
+    TEMPLATES_DIR,
+    NODE_ENV: process.env.NODE_ENV || "production",
+  };
+
+  return execSync(cmd, {
+    env,
+    encoding: "utf-8",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+}
+
+function nowStamp() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}${m}${day}`;
+}
+
+function rand4() {
+  return Math.floor(1000 + Math.random() * 9000);
+}
+
+function ensureCaseId(payload) {
+  // If client sends caseId, keep it; else generate LRID-YYYYMMDD-####.
+  if (payload && payload.caseId && String(payload.caseId).trim()) {
+    return String(payload.caseId).trim();
+  }
+  return `LRID-${nowStamp()}-${rand4()}`;
 }
 
 function caseIdFromDraftFilename(draftFile) {
-  // draft_<case_id>.json
-  if (!draftFile.startsWith("draft_") || !draftFile.endsWith(".json")) return null;
-  return draftFile.replace(/^draft_/, "").replace(/\.json$/, "");
+  // draft_LRID-20260111-6859.json -> LRID-20260111-6859
+  const m = /^draft_(.+)\.json$/i.exec(draftFile || "");
+  return m ? m[1] : null;
 }
 
 // =======================
-// Health
+// Boot: ensure dirs exist
+// =======================
+ensureDir(DATA_DIR);
+ensureDir(APPROVALS_DIR);
+ensureDir(OUT_DIR);
+
+// =======================
+// Static
+// =======================
+app.use("/out", express.static(OUT_DIR));
+app.use("/data", express.static(DATA_DIR));
+app.use("/approvals", express.static(APPROVALS_DIR));
+app.use("/web", express.static(WEB_DIR));
+
+// =======================
+// Health + Debug
 // =======================
 app.get("/api/health", (req, res) => {
   res.json({
     ok: true,
+    service: "lrid-assessment",
     time: new Date().toISOString(),
-    env: {
-      PORT,
+    env: process.env.NODE_ENV || "production",
+    paths: {
       STORAGE_ROOT,
       DATA_DIR,
       APPROVALS_DIR,
-      OUT_DIR
-    }
+      OUT_DIR,
+    },
+  });
+});
+
+app.get("/api/debug/paths", (req, res) => {
+  res.json({
+    ok: true,
+    __dirname,
+    WEB_DIR,
+    CONFIG_DIR,
+    TEMPLATES_DIR,
+    STORAGE_ROOT,
+    DATA_DIR,
+    APPROVALS_DIR,
+    OUT_DIR,
+    exists: {
+      web: fs.existsSync(WEB_DIR),
+      config: fs.existsSync(CONFIG_DIR),
+      templates: fs.existsSync(TEMPLATES_DIR),
+      data: fs.existsSync(DATA_DIR),
+      approvals: fs.existsSync(APPROVALS_DIR),
+      out: fs.existsSync(OUT_DIR),
+    },
   });
 });
 
 // =======================
-// Intake submit -> DATA_DIR/responses_<case_id>.json
+// Intake submit -> DATA_DIR/responses_<caseId>.json
 // =======================
 app.post("/api/intake/submit", (req, res) => {
   try {
-    const submission = req.body;
+    const submission = req.body || {};
+    const caseId = ensureCaseId(submission);
 
-    if (!submission || typeof submission !== "object") {
-      return res.status(400).json({ ok: false, error: "Missing submission body" });
-    }
-    if (!submission.case_id || typeof submission.case_id !== "string") {
-      return res.status(400).json({ ok: false, error: "Missing case_id" });
-    }
-
-    const outFile = `responses_${submission.case_id}.json`;
+    const outFile = `responses_${caseId}.json`;
     const outPath = path.join(DATA_DIR, outFile);
 
-    writeJSON(outPath, submission);
+    const payload = {
+      ...submission,
+      caseId,
+      submittedAt: new Date().toISOString(),
+    };
 
-    return res.json({ ok: true, file: `data/${outFile}` });
+    writeJSON(outPath, payload);
+
+    return res.json({ ok: true, caseId, file: `data/${outFile}`, savedTo: outPath });
   } catch (e) {
     return res.status(500).json({ ok: false, error: e.message });
   }
 });
 
 // =======================
-// Lists (for UI)
+// List files for panel
 // =======================
 app.get("/api/list", (req, res) => {
   try {
     const responses = listFilesSorted(DATA_DIR, "responses_");
     const drafts = listFilesSorted(DATA_DIR, "draft_");
     const approvals = listFilesSorted(APPROVALS_DIR, "approval_");
-
-    const outFolders = fs.existsSync(OUT_DIR)
-      ? fs
-          .readdirSync(OUT_DIR)
-          .filter((f) => fs.statSync(path.join(OUT_DIR, f)).isDirectory())
-          .map((f) => ({
-            folder: f,
-            mtime: fs.statSync(path.join(OUT_DIR, f)).mtime.getTime()
-          }))
-          .sort((a, b) => b.mtime - a.mtime)
-          .map((x) => x.folder)
-      : [];
+    const outFolders = listFoldersSorted(OUT_DIR, "case_");
 
     res.json({
       ok: true,
@@ -178,8 +224,8 @@ app.get("/api/list", (req, res) => {
         drafts,
         approvals,
         outFolders,
-        hasPayload: fs.existsSync(path.join(DATA_DIR, "payload.json"))
-      }
+        hasPayload: fs.existsSync(path.join(DATA_DIR, "payload.json")),
+      },
     });
   } catch (e) {
     res.status(500).json({ ok: false, error: e.message });
@@ -187,47 +233,21 @@ app.get("/api/list", (req, res) => {
 });
 
 // =======================
-// Read draft JSON (for review panel)
-// =======================
-app.get("/api/draft/read", (req, res) => {
-  try {
-    const file = req.query.file;
-
-    if (!file || !isSafeFilename(file)) {
-      return res.status(400).json({ ok: false, error: "Invalid file" });
-    }
-
-    const p = path.join(DATA_DIR, file);
-    if (!fs.existsSync(p)) {
-      return res.status(404).json({ ok: false, error: "Draft not found" });
-    }
-
-    res.json({ ok: true, draft: readJSON(p) });
-  } catch (e) {
-    res.status(500).json({ ok: false, error: e.message });
-  }
-});
-
-// =======================
-// Approval: create template (auto) from a draft
+// Create approval template from draft
+// Expects { draft_file: "draft_....json" }
 // =======================
 app.post("/api/approval/template", (req, res) => {
   try {
-    const { draft_file } = req.body;
-
-    if (!draft_file || !isSafeFilename(draft_file)) {
-      return res.status(400).json({ ok: false, error: "Invalid draft_file" });
-    }
+    const { draft_file } = req.body || {};
+    if (!draft_file) return res.status(400).json({ ok: false, error: "draft_file required" });
 
     const draftPath = path.join(DATA_DIR, draft_file);
-    if (!fs.existsSync(draftPath)) {
-      return res.status(404).json({ ok: false, error: "Draft not found" });
-    }
+    if (!fs.existsSync(draftPath)) return res.status(404).json({ ok: false, error: "Draft not found" });
 
     const output = safeExec(`node approve_case.js "${draftPath}" --auto`);
 
     const caseId = caseIdFromDraftFilename(draft_file);
-    const approvalFile = caseId ? `approval_${caseId}.json` : null;
+    const approvalFile = caseId ? `approval_${caseId}.json` : "approval_UNKNOWN_CASE.json";
 
     res.json({ ok: true, output, approvalFile });
   } catch (e) {
@@ -236,89 +256,71 @@ app.post("/api/approval/template", (req, res) => {
 });
 
 // =======================
-// Approval: get approval JSON
-// =======================
-app.get("/api/approval/get", (req, res) => {
-  try {
-    const file = req.query.file;
-
-    if (!file || !isSafeFilename(file)) {
-      return res.status(400).json({ ok: false, error: "Invalid file" });
-    }
-
-    const p = path.join(APPROVALS_DIR, file);
-    if (!fs.existsSync(p)) {
-      return res.status(404).json({ ok: false, error: "Approval not found" });
-    }
-
-    res.json({ ok: true, approval: readJSON(p) });
-  } catch (e) {
-    res.status(500).json({ ok: false, error: e.message });
-  }
-});
-
-// =======================
-// Approval: save approval JSON (edited in UI)
+// Save approval JSON (from panel)
+// Expects { file: "approval_....json", approval: {...} }
 // =======================
 app.post("/api/approval/save", (req, res) => {
   try {
-    const { file, approval } = req.body;
-
-    if (!file || !isSafeFilename(file)) {
-      return res.status(400).json({ ok: false, error: "Invalid file" });
+    const { file, approval } = req.body || {};
+    if (!file || !approval) {
+      return res.status(400).json({ ok: false, error: "file + approval required" });
     }
-    if (!approval || typeof approval !== "object") {
-      return res.status(400).json({ ok: false, error: "Invalid approval payload" });
+    if (!file.startsWith("approval_") || !file.endsWith(".json")) {
+      return res.status(400).json({ ok: false, error: "Invalid approval filename" });
     }
 
-    writeJSON(path.join(APPROVALS_DIR, file), approval);
+    const p = path.join(APPROVALS_DIR, file);
+    writeJSON(p, approval);
 
-    res.json({ ok: true });
+    res.json({ ok: true, savedTo: p });
   } catch (e) {
     res.status(500).json({ ok: false, error: e.message });
   }
 });
 
 // =======================
-// Finalize: apply approval + generate PDFs
+// Finalize: apply approval + generate payload + generate PDFs
+// Expects { draft_file: "draft_....json" }
 // =======================
 app.post("/api/approval/finalize", (req, res) => {
   try {
-    const { draft_file } = req.body;
-
-    if (!draft_file || !isSafeFilename(draft_file)) {
-      return res.status(400).json({ ok: false, error: "Invalid draft_file" });
-    }
+    const { draft_file } = req.body || {};
+    if (!draft_file) return res.status(400).json({ ok: false, error: "draft_file required" });
 
     const draftPath = path.join(DATA_DIR, draft_file);
-    if (!fs.existsSync(draftPath)) {
-      return res.status(404).json({ ok: false, error: "Draft not found" });
+    if (!fs.existsSync(draftPath)) return res.status(404).json({ ok: false, error: "Draft not found" });
+
+    // 1) Apply approval to draft (this should also create/update payload.json in DATA_DIR)
+    const approvalOutput = safeExec(`node approve_case.js "${draftPath}"`);
+
+    // 2) Ensure payload exists
+    const payloadPath = path.join(DATA_DIR, "payload.json");
+    if (!fs.existsSync(payloadPath)) {
+      throw new Error(
+        `payload.json not found at ${payloadPath}. ` +
+          `Your approve_case.js must generate it (or call your builder before PDFs).`
+      );
     }
 
-    const approvalOutput = safeExec(`node approve_case.js "${draftPath}"`);
+    // 3) Generate PDFs (index.js MUST read DATA_DIR/OUT_DIR from env)
     const pdfOutput = safeExec(`node index.js`);
 
-    const latestOut =
-      fs.existsSync(OUT_DIR)
-        ? fs
-            .readdirSync(OUT_DIR)
-            .filter((f) => fs.statSync(path.join(OUT_DIR, f)).isDirectory())
-            .map((f) => ({ folder: f, mtime: fs.statSync(path.join(OUT_DIR, f)).mtime.getTime() }))
-            .sort((a, b) => b.mtime - a.mtime)[0]?.folder
-        : null;
+    // 4) Find latest out folder
+    const outFolders = listFoldersSorted(OUT_DIR, "case_");
+    const latestOut = outFolders[0] || null;
 
     res.json({
       ok: true,
       approvalOutput,
       pdfOutput,
-      latestOutFolder: latestOut,
-      links: latestOut
+      latestOut,
+      pdfs: latestOut
         ? {
             executive: `/out/${latestOut}/executive.pdf`,
             hr: `/out/${latestOut}/hr.pdf`,
-            academic: `/out/${latestOut}/academic.pdf`
+            academic: `/out/${latestOut}/academic.pdf`,
           }
-        : null
+        : null,
     });
   } catch (e) {
     res.status(500).json({ ok: false, error: e.message });
@@ -329,33 +331,25 @@ app.post("/api/approval/finalize", (req, res) => {
 // Root routes
 // =======================
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "web", "index.html"));
+  res.sendFile(path.join(WEB_DIR, "index.html"));
 });
 
 app.get("/review", (req, res) => {
-  res.sendFile(path.join(__dirname, "web", "review.html"));
+  res.sendFile(path.join(WEB_DIR, "review.html"));
 });
 
 // =======================
 // Start
 // =======================
 app.listen(PORT, HOST, () => {
-  console.log(`✔ LRID™ Server running at http://${HOST}:${PORT}`);
+  console.log(`✔ LRID™ Server running`);
+  console.log(`- Host:         ${HOST}`);
+  console.log(`- Port:         ${PORT}`);
   console.log(`- Intake:       /`);
   console.log(`- Review Panel: /review`);
   console.log(`- Health:       /api/health`);
-  console.log(`STORAGE_ROOT: ${STORAGE_ROOT}`);
-  console.log(`DATA_DIR: ${DATA_DIR}`);
-  console.log(`APPROVALS_DIR: ${APPROVALS_DIR}`);
-  console.log(`OUT_DIR: ${OUT_DIR}`);
-});
-
-// Crash visibility
-process.on("uncaughtException", (err) => {
-  console.error("uncaughtException:", err);
-  process.exit(1);
-});
-process.on("unhandledRejection", (err) => {
-  console.error("unhandledRejection:", err);
-  process.exit(1);
+  console.log(`- STORAGE_ROOT: ${STORAGE_ROOT}`);
+  console.log(`- DATA_DIR:     ${DATA_DIR}`);
+  console.log(`- APPROVALS_DIR:${APPROVALS_DIR}`);
+  console.log(`- OUT_DIR:      ${OUT_DIR}`);
 });
