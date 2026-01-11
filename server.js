@@ -7,27 +7,17 @@ const { execSync } = require("child_process");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-/**
- * STORAGE_ROOT:
- * - On Railway, writing inside the repo folder can be unreliable.
- * - /tmp is always writable in container runtimes.
- */
+// Writable runtime storage (Railway-safe)
 const STORAGE_ROOT =
   process.env.LRID_STORAGE_ROOT ||
   process.env.RAILWAY_VOLUME_MOUNT_PATH ||
   path.join(os.tmpdir(), "lrid");
 
-/**
- * Repo (read-only-ish) assets:
- * - web/ and config/ are shipped with code, so keep serving them from __dirname
- */
+// Repo assets (read-only-ish)
 const REPO_WEB_DIR = path.join(__dirname, "web");
 const REPO_CONFIG_DIR = path.join(__dirname, "config");
 
-/**
- * Runtime dirs (writable):
- * - data/ approvals/ out/ live under STORAGE_ROOT
- */
+// Runtime dirs (writable)
 const RUNTIME_DATA_DIR = path.join(STORAGE_ROOT, "data");
 const RUNTIME_APPROVALS_DIR = path.join(STORAGE_ROOT, "approvals");
 const RUNTIME_OUT_DIR = path.join(STORAGE_ROOT, "out");
@@ -38,7 +28,6 @@ const RUNTIME_OUT_DIR = path.join(STORAGE_ROOT, "out");
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
-// prevent stale assets
 app.use((req, res, next) => {
   res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
   res.setHeader("Pragma", "no-cache");
@@ -110,9 +99,9 @@ ensureDir(RUNTIME_OUT_DIR);
 // =======================
 // Static hosting
 // =======================
-app.use(express.static(REPO_WEB_DIR));                 // index.html, intake.js, review.html...
-app.use("/config", express.static(REPO_CONFIG_DIR));   // questions JSON (from repo)
-app.use("/out", express.static(RUNTIME_OUT_DIR));      // PDFs (runtime)
+app.use(express.static(REPO_WEB_DIR));
+app.use("/config", express.static(REPO_CONFIG_DIR));
+app.use("/out", express.static(RUNTIME_OUT_DIR));
 
 // =======================
 // Health
@@ -122,12 +111,13 @@ app.get("/api/health", (req, res) => {
     ok: true,
     time: new Date().toISOString(),
     port: PORT,
-    storage_root: STORAGE_ROOT
+    storage_root: STORAGE_ROOT,
+    runtime_data_dir: RUNTIME_DATA_DIR
   });
 });
 
 // =======================
-// Intake submit -> runtime data/responses_<case_id>.json
+// Intake submit -> create responses + auto-generate draft
 // =======================
 app.post("/api/intake/submit", (req, res) => {
   try {
@@ -140,21 +130,29 @@ app.post("/api/intake/submit", (req, res) => {
       return res.status(400).json({ ok: false, error: "Missing case_id" });
     }
 
+    // 1) Save responses to runtime
     const outFile = `responses_${submission.case_id}.json`;
     const outPath = path.join(RUNTIME_DATA_DIR, outFile);
-
     writeJSON(outPath, submission);
+
+    // 2) Auto-generate draft_<case_id>.json into the SAME runtime data directory
+    const draftEnv = {
+      LRID_DATA_DIR: RUNTIME_DATA_DIR
+    };
+
+    // Call build_draft.js with absolute path (no ambiguity)
+    const draftOutput = safeExec(`node build_draft.js "${outPath}"`, draftEnv);
 
     return res.json({
       ok: true,
       file: `data/${outFile}`,
-      saved_to: outPath
+      saved_to: outPath,
+      draft_output: draftOutput
     });
   } catch (e) {
     return res.status(500).json({
       ok: false,
-      error: e.message,
-      hint: "Most common cause is storage permissions. This server uses /tmp by default."
+      error: e.message
     });
   }
 });
@@ -210,37 +208,6 @@ app.get("/api/draft/read", (req, res) => {
     }
 
     res.json({ ok: true, draft: readJSON(p) });
-  } catch (e) {
-    res.status(500).json({ ok: false, error: e.message });
-  }
-});
-
-// =======================
-// Approval: create template (auto) from a draft
-// =======================
-app.post("/api/approval/template", (req, res) => {
-  try {
-    const { draft_file } = req.body;
-
-    if (!draft_file || !isSafeFilename(draft_file)) {
-      return res.status(400).json({ ok: false, error: "Invalid draft_file" });
-    }
-
-    const draftPath = path.join(RUNTIME_DATA_DIR, draft_file);
-    if (!fs.existsSync(draftPath)) {
-      return res.status(404).json({ ok: false, error: "Draft not found" });
-    }
-
-    // NOTE:
-    // approve_case.js currently expects paths relative to repo.
-    // If you want approvals/finalize to fully work on Railway, we’ll also update those scripts
-    // to read/write from STORAGE_ROOT. For now, intake submission will be fixed.
-    const output = safeExec(`node approve_case.js "${draftPath}" --auto`);
-
-    const caseId = caseIdFromDraftFilename(draft_file);
-    const approvalFile = caseId ? `approval_${caseId}.json` : null;
-
-    res.json({ ok: true, output, approvalFile });
   } catch (e) {
     res.status(500).json({ ok: false, error: e.message });
   }
@@ -309,6 +276,7 @@ app.listen(PORT, () => {
   console.log(`✔ LRID™ Server running`);
   console.log(`- Port: ${PORT}`);
   console.log(`- Storage root: ${STORAGE_ROOT}`);
+  console.log(`- Runtime data: ${RUNTIME_DATA_DIR}`);
   console.log(`- Intake:       /`);
   console.log(`- Review Panel: /review`);
   console.log(`- Health:       /api/health`);
