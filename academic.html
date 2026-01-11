@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LRID Academic Report</title>
+  <style>
+    body {
+      font-family: Georgia, "Times New Roman", serif;
+      margin: 26px;
+      color: #111;
+    }
+    h1, h2, h3 {
+      margin-bottom: 10px;
+    }
+    p {
+      line-height: 1.6;
+    }
+    .meta {
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 20px;
+    }
+    .box {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 18px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      font-size: 13px;
+      vertical-align: top;
+    }
+    th {
+      background: #f0f0f0;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>LRID – Academic / MBA–DBA Report</h1>
+
+<div class="meta">
+  <b>Participant:</b> {{meta.subject_name}}<br>
+  <b>Date:</b> {{meta.report_date}}<br>
+  <b>Version:</b> {{meta.version}}
+</div>
+
+<div class="box">
+  <h2>Learning Summary</h2>
+  <p><b>Profile statement:</b> {{academic.profile_statement}}</p>
+  <p><b>Main trade-offs:</b> {{academic.tradeoffs}}</p>
+</div>
+
+<div class="box">
+  <h2>Scores & Interpretation</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Dimension</th>
+        <th>Score</th>
+        <th>Band</th>
+        <th>Interpretation</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{tables.academic_dimensions_rows}}
+    </tbody>
+  </table>
+</div>
+
+<div class="box">
+  <h2>Framework Interpretation</h2>
+  {{blocks.academic_frameworks}}
+</div>
+
+<div class="box">
+  <h2>Consistency & Bias Awareness</h2>
+  <p>{{academic.cc_overview}}</p>
+  {{blocks.academic_cc_details}}
+</div>
+
+<div class="box">
+  <h2>Reflective Prompts</h2>
+  <ol>
+    {{lists.academic_reflection_prompts_li}}
+  </ol>
+</div>
+
+<div class="box">
+  <h2>Methodological Note</h2>
+  <p><b>What this measures:</b> {{meta.what_it_measures}}</p>
+  <p><b>What this does not measure:</b> {{meta.what_it_does_not_measure}}</p>
+  <p><b>Limitations:</b> {{meta.limitations}}</p>
+</div>
+
+<p style="font-size:11px;color:#666;">
+  {{meta.data_ethics_note}}
+</p>
+
+</body>
+</html>

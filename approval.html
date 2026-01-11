@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>LRID™ Approval Console</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;max-width:1050px;margin:26px auto;padding:0 16px}
+    h1{margin:0 0 6px}
+    .muted{color:#666;font-size:13px}
+    .card{border:1px solid #ddd;border-radius:16px;padding:16px;margin:14px 0}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    label{display:block;font-weight:700;margin:10px 0 6px}
+    select,input,textarea{width:100%;padding:10px;border:1px solid #ccc;border-radius:12px}
+    textarea{min-height:240px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px}
+    .btn{background:#111;color:#fff;border:none;border-radius:12px;padding:12px 16px;font-weight:800;cursor:pointer}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .btn2{background:#fff;color:#111;border:1px solid #ccc}
+    .ok{padding:12px;border-radius:12px;background:#eef9ee;border:1px solid #bfe7bf}
+    .err{padding:12px;border-radius:12px;background:#fff0f0;border:1px solid #f0baba}
+    pre{white-space:pre-wrap;background:#f6f6f6;padding:12px;border-radius:12px;border:1px solid #e6e6e6;max-height:340px;overflow:auto}
+    code{background:#f3f3f3;padding:2px 6px;border-radius:8px}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}
+  </style>
+</head>
+<body>
+  <h1>LRID™ Approval Console</h1>
+  <div class="muted">
+    Human-in-the-loop approval gate → payload → Executive/HR/Academic PDFs.
+  </div>
+
+  <div class="card">
+    <h2>Select Draft</h2>
+    <div class="row">
+      <div>
+        <label>draft_*.json</label>
+        <select id="draftSelect"></select>
+        <div class="muted" style="margin-top:6px">Loaded from <code>/api/list</code> (data/draft_*.json).</div>
+      </div>
+      <div>
+        <label>Approval file</label>
+        <input id="approvalFile" placeholder="approval_....json" readonly/>
+        <div class="muted" style="margin-top:6px">Stored in <code>approvals/</code>.</div>
+      </div>
+    </div>
+
+    <div class="actions" style="margin-top:12px">
+      <button class="btn btn2" id="refreshBtn">Refresh list</button>
+      <button class="btn" id="createTemplateBtn">Create / Refresh Approval Template</button>
+      <button class="btn btn2" id="loadApprovalBtn">Load Approval</button>
+    </div>
+
+    <div id="status1" style="margin-top:12px"></div>
+  </div>
+
+  <div class="card">
+    <h2>Decision</h2>
+    <div class="row">
+      <div>
+        <label>Status</label>
+        <select id="decisionStatus">
+          <option value="APPROVE">APPROVE</option>
+          <option value="ADJUST">ADJUST</option>
+          <option value="DEBRIEF">DEBRIEF</option>
+        </select>
+      </div>
+      <div>
+        <label>Operator notes (board-level)</label>
+        <input id="operatorNotes" placeholder="Short justification / key context…"/>
+      </div>
+    </div>
+
+    <label>Approval JSON (editable)</label>
+    <textarea id="approvalJson" placeholder="Click 'Create/Refresh' then 'Load Approval'…"></textarea>
+
+    <div class="actions" style="margin-top:12px">
+      <button class="btn btn2" id="saveApprovalBtn">Save Approval</button>
+      <button class="btn" id="finalizeBtn">Finalize & Generate PDFs</button>
+    </div>
+
+    <div id="status2" style="margin-top:12px"></div>
+  </div>
+
+<script>
+const draftSelect = document.getElementById("draftSelect");
+const approvalFile = document.getElementById("approvalFile");
+const decisionStatus = document.getElementById("decisionStatus");
+const operatorNotes = document.getElementById("operatorNotes");
+const approvalJson = document.getElementById("approvalJson");
+const status1 = document.getElementById("status1");
+const status2 = document.getElementById("status2");
+
+const refreshBtn = document.getElementById("refreshBtn");
+const createTemplateBtn = document.getElementById("createTemplateBtn");
+const loadApprovalBtn = document.getElementById("loadApprovalBtn");
+const saveApprovalBtn = document.getElementById("saveApprovalBtn");
+const finalizeBtn = document.getElementById("finalizeBtn");
+
+function esc(s){return String(s||"").replace(/[&<>"']/g,m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));}
+
+function setBox(el, kind, html){
+  el.innerHTML = `<div class="${kind}">${html}</div>`;
+}
+
+async function loadDrafts(){
+  status1.innerHTML = "";
+  const res = await fetch("/api/list");
+  const out = await res.json();
+  if(!out.ok){
+    setBox(status1, "err", `<b>Error:</b> ${esc(out.error||"unknown")}`);
+    return;
+  }
+  const drafts = out.data?.drafts || [];
+  if(!drafts.length){
+    draftSelect.innerHTML = `<option value="">No drafts found in /data</option>`;
+    return;
+  }
+  draftSelect.innerHTML = drafts.map(d => `<option value="${esc(d.name)}">${esc(d.name)} — ${esc(d.mtime)}</option>`).join("");
+}
+
+function deriveApprovalName(draftName){
+  // draft_LRID-...json -> approval_LRID-....json
+  const m = String(draftName).match(/^draft_(.+)\.json$/);
+  return m ? `approval_${m[1]}.json` : "";
+}
+
+async function createTemplate(){
+  const draft = draftSelect.value;
+  if(!draft){ setBox(status1,"err","Select a draft first."); return; }
+
+  createTemplateBtn.disabled = true;
+  status1.innerHTML = `<div class="muted">Creating template…</div>`;
+
+  const res = await fetch("/api/approval/template", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ draft_file: draft })
+  });
+  const out = await res.json();
+  createTemplateBtn.disabled = false;
+
+  if(!out.ok){
+    setBox(status1,"err", `<b>Error:</b> ${esc(out.error||"unknown")}<details style="margin-top:10px"><summary>Console</summary><pre>${esc(out.console_output||"")}</pre></details>`);
+    return;
+  }
+
+  approvalFile.value = out.approval_file || deriveApprovalName(draft);
+  setBox(status1,"ok", `Template ready: <code>${esc(approvalFile.value)}</code>. Now click <b>Load Approval</b>.`);
+}
+
+async function loadApproval(){
+  const file = approvalFile.value || deriveApprovalName(draftSelect.value);
+  if(!file){ setBox(status1,"err","No approval file selected."); return; }
+
+  loadApprovalBtn.disabled = true;
+  status1.innerHTML = `<div class="muted">Loading approval…</div>`;
+
+  const res = await fetch(`/api/approval/get?file=${encodeURIComponent(file)}`);
+  const out = await res.json();
+  loadApprovalBtn.disabled = false;
+
+  if(!out.ok){
+    setBox(status1,"err", `<b>Error:</b> ${esc(out.error||"unknown")}`);
+    return;
+  }
+
+  const obj = out.approval || {};
+  approvalJson.value = JSON.stringify(obj, null, 2);
+
+  // best-effort: sync UI fields
+  const st = obj?.decision?.status;
+  if(st) decisionStatus.value = st;
+  const notes = obj?.decision?.operator_notes;
+  if(notes) operatorNotes.value = notes;
+
+  setBox(status1,"ok", `Loaded: <code>${esc(file)}</code>`);
+}
+
+function applyDecisionToJson(obj){
+  obj = obj || {};
+  obj.decision = obj.decision || {};
+  obj.decision.status = decisionStatus.value;
+  obj.decision.operator_notes = operatorNotes.value || obj.decision.operator_notes || "";
+  obj.audit = obj.audit || {};
+  obj.audit.decision_at = new Date().toISOString();
+  obj.audit.decision_by = obj.audit.decision_by || "operator";
+  return obj;
+}
+
+async function saveApproval(){
+  const file = approvalFile.value || deriveApprovalName(draftSelect.value);
+  if(!file){ setBox(status2,"err","No approval file selected."); return; }
+
+  let obj;
+  try{
+    obj = JSON.parse(approvalJson.value || "{}");
+  }catch(e){
+    setBox(status2,"err", "Approval JSON is not valid JSON.");
+    return;
+  }
+
+  obj = applyDecisionToJson(obj);
+
+  // reflect normalized JSON back to textarea
+  approvalJson.value = JSON.stringify(obj, null, 2);
+
+  saveApprovalBtn.disabled = true;
+  status2.innerHTML = `<div class="muted">Saving approval…</div>`;
+
+  const res = await fetch("/api/approval/save", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ file, approval: obj })
+  });
+  const out = await res.json();
+  saveApprovalBtn.disabled = false;
+
+  if(!out.ok){
+    setBox(status2,"err", `<b>Error:</b> ${esc(out.error||"unknown")}`);
+    return;
+  }
+  setBox(status2,"ok", `Saved: <code>${esc(file)}</code>`);
+}
+
+async function finalize(){
+  const draft = draftSelect.value;
+  const file = approvalFile.value || deriveApprovalName(draft);
+
+  if(!draft){ setBox(status2,"err","Select a draft first."); return; }
+  if(!file){ setBox(status2,"err","No approval file selected."); return; }
+
+  // Ensure saved before finalize (best practice)
+  await saveApproval();
+
+  finalizeBtn.disabled = true;
+  status2.innerHTML = `<div class="muted">Finalizing… running approve_case.js + PDF generator…</div>`;
+
+  const res = await fetch("/api/approval/finalize", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ draft_file: draft, approval_file: file })
+  });
+  const out = await res.json();
+  finalizeBtn.disabled = false;
+
+  if(!out.ok){
+    setBox(status2,"err", `<b>Error:</b> ${esc(out.error||"unknown")}<details style="margin-top:10px"><summary>Console</summary><pre>${esc(out.console_output||"")}</pre></details>`);
+    return;
+  }
+
+  setBox(status2,"ok",
+    `<b>DONE.</b> Case: <code>${esc(out.case_id||"")}</code><br/>` +
+    (out.out_dir ? `PDF folder: <code>${esc(out.out_dir)}</code><br/>` : ``) +
+    `Elapsed: <code>${esc(out.elapsed_seconds||"")}</code> sec` +
+    `<details style="margin-top:10px"><summary>Console output</summary><pre>${esc(out.console_output||"")}</pre></details>`
+  );
+}
+
+refreshBtn.addEventListener("click", loadDrafts);
+createTemplateBtn.addEventListener("click", createTemplate);
+loadApprovalBtn.addEventListener("click", loadApproval);
+saveApprovalBtn.addEventListener("click", saveApproval);
+finalizeBtn.addEventListener("click", finalize);
+
+draftSelect.addEventListener("change", ()=>{
+  // auto-suggest approval filename
+  approvalFile.value = deriveApprovalName(draftSelect.value);
+  status1.innerHTML = "";
+  status2.innerHTML = "";
+});
+
+loadDrafts();
+</script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+{
+  "meta": {
+    "subject_name": "LRID-20251220-0001",
+    "report_date": "2025-12-21",
+    "version": "LRID v1.0",
+    "use_limitations": "This report is a decision-support diagnostic. It is not a psychological, medical, or psychiatric assessment.",
+    "data_ethics_note": "Results should be interpreted by qualified professionals within an organizational or educational context.",
+    "what_it_measures": "Decision integrity, ethical boundary management, manipulation awareness, attention control, power handling, and correction readiness.",
+    "what_it_does_not_measure": "Personality traits, intelligence, emotional disorders, or mental health conditions.",
+    "limitations": "Results depend on contextual pressure, self-report accuracy, and situational variables at the time of assessment."
+  },
+  "confidence": {
+    "score": "0.74",
+    "level": "Medium"
+  },
+  "scores": {
+    "hsri": "2.95",
+    "oi": "3.25"
+  },
+  "bands": {
+    "hsri": "Mixed / Context-dependent",
+    "oi": "Mixed / Context-dependent"
+  },
+  "high_stakes": {
+    "status": "ON"
+  },
+  "exec": {
+    "thesis_sentence": "Decisive delivery under pressure with emerging risk of procedural exception normalization and reduced openness to correction when time constraints dominate."
+  },
+  "tables": {
+    "exec_dimensions_rows": "<tr><td>Decision Integrity (DI)</td><td>3.40</td><td>Functional Strength</td><td>Decision logic clarity, criteria discipline, defensibility under scrutiny. Consistently strong signal in typical conditions.</td></tr><tr><td>Responsibility & Ownership (RP)</td><td>4.00</td><td>Functional Strength</td><td>Ownership, accountability, responsibility alignment. Consistently strong signal in typical conditions.</td></tr><tr><td>Manipulation Awareness (MA)</td><td>3.00</td><td>Mixed / Context-dependent</td><td>Resistance to authority pressure, manipulation cues, social influence. Performance varies under pressure and context.</td></tr><tr><td>Attention Control (AC)</td><td>3.10</td><td>Mixed / Context-dependent</td><td>Attention filtering, prioritization, noise vs signal separation. Performance varies under pressure and context.</td></tr><tr><td>Power & Correction (PR)</td><td>2.90</td><td>Mixed / Context-dependent</td><td>Openness to correction, dissent bandwidth, power/ego management. Performance varies under pressure and context.</td></tr><tr><td>Ethical Drift Resistance (ED)</td><td>2.70</td><td>Risk Zone</td><td>Ethical boundary stability, exception tolerance, drift risk. Elevated risk signal; requires guardrails and expert attention.</td></tr>"
+  },
+  "lists": {
+    "exec_top_assets_li": "<li>Clear ownership of outcomes and accountability mindset</li><li>Ability to execute and prioritize under ambiguity</li>",
+    "exec_top_risks_li": "<li>Ethical drift risk through repeated procedural exceptions</li><li>Feedback channel narrowing during crisis decision cycles</li>",
+    "exec_30day_actions_li": "<li>Introduce decision logs for any exception (who/why/impact/compensating controls)</li><li>Implement a structured dissent step for high-stakes calls (2-minute challenge rule)</li>",
+    "hr_strengths_safeguards_li": "<li>Clear ownership of outcomes and accountability mindset</li><li>Ability to execute and prioritize under ambiguity</li>",
+    "hr_development_actions_li": "<li>Ethical drift risk through repeated procedural exceptions</li><li>Feedback channel narrowing during crisis decision cycles</li>",
+    "hr_interventions_li": "<li>Introduce decision logs for any exception (who/why/impact/compensating controls)</li><li>Implement a structured dissent step for high-stakes calls (2-minute challenge rule)</li>",
+    "academic_reflection_prompts_li": "<li>Which decision criteria remain stable under extreme pressure?</li><li>Where do personal judgment and formal governance diverge?</li><li>How do power dynamics shape openness to correction?</li>"
+  },
+  "blocks": {
+    "exec_red_flags": "<ul><li><b>RF_ETH_01</b>: Procedural exception normalization</li><li><b>RF_PWR_02</b>: Reduced openness to correction under time pressure</li></ul>",
+    "hr_dimension_cards": "<p><b>DI/RP/MA/AC/PR/ED</b> summaries prepared from draft scoring.</p>",
+    "hr_risks": "<ul><li>Procedural exception normalization</li><li>Reduced openness to correction under time pressure</li></ul>",
+    "academic_frameworks": "<p>This profile can be interpreted through decision hygiene, authority bias mitigation, and governance guardrails frameworks.</p>",
+    "academic_cc_details": "<ul><li>CC insights available in the draft assessment.</li></ul>"
+  },
+  "academic": {
+    "profile_statement": "A pragmatic decision-maker balancing speed with governance guardrails.",
+    "tradeoffs": "Speed and autonomy vs. correction bandwidth and procedural rigor.",
+    "cc_overview": "Consistency checks indicate pressure-driven variability in ethical boundary tolerance."
+  },
+  "hr": {
+    "role_fit_summary": "Strong operational fit; recommend governance reinforcement and feedback loop strengthening for crisis contexts."
+  }
+}

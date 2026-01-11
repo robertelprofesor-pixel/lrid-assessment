@@ -1,0 +1,167 @@
+{
+  "sessionId": "sess_7152a9d8a5e8bac80aa5f8cfabbdc5a5",
+  "source": "direct",
+  "productId": null,
+  "email": null,
+  "startedAt": "2026-01-10T10:14:35.808Z",
+  "completedAt": null,
+  "lastUpdatedAt": "2026-01-10T10:16:04.940Z",
+  "progress": {
+    "currentIndex": 22,
+    "totalQuestions": 22
+  },
+  "responses": [
+    {
+      "questionId": "DI-01",
+      "timeMs": 3385,
+      "answeredAt": "2026-01-10T10:14:39.236Z",
+      "valueScore": 1,
+      "optionLabel": "Use it — responsibility lies with the source"
+    },
+    {
+      "questionId": "DI-02",
+      "timeMs": 4394,
+      "answeredAt": "2026-01-10T10:14:43.642Z",
+      "valueScore": 1,
+      "optionLabel": "1 — Very low"
+    },
+    {
+      "questionId": "DI-13",
+      "timeMs": 4818,
+      "answeredAt": "2026-01-10T10:14:48.471Z",
+      "valueScore": 1,
+      "optionLabel": "Accept — ‘everyone does it’"
+    },
+    {
+      "questionId": "DI-14",
+      "timeMs": 3193,
+      "answeredAt": "2026-01-10T10:14:51.675Z",
+      "valueScore": 5,
+      "optionLabel": "Choose full transparency, even if it hurts"
+    },
+    {
+      "questionId": "RP-03",
+      "timeMs": 3437,
+      "answeredAt": "2026-01-10T10:14:55.124Z",
+      "valueScore": 4,
+      "optionLabel": "Project recovery first"
+    },
+    {
+      "questionId": "RP-04",
+      "timeMs": 4239,
+      "answeredAt": "2026-01-10T10:14:59.375Z",
+      "valueScore": 3,
+      "optionLabel": "3 — Medium"
+    },
+    {
+      "questionId": "RP-15",
+      "timeMs": 5355,
+      "answeredAt": "2026-01-10T10:15:04.741Z",
+      "valueScore": 5,
+      "optionLabel": "Decision quality (shortcuts)"
+    },
+    {
+      "questionId": "RP-16",
+      "timeMs": 3088,
+      "answeredAt": "2026-01-10T10:15:07.841Z",
+      "valueScore": 5,
+      "optionLabel": "Run a quick AAR (what worked/failed), then rest"
+    },
+    {
+      "questionId": "MA-05",
+      "timeMs": 1791,
+      "answeredAt": "2026-01-10T10:15:09.643Z",
+      "valueScore": 5,
+      "optionLabel": "Check who truly benefits and what is hidden"
+    },
+    {
+      "questionId": "MA-06",
+      "timeMs": 1702,
+      "answeredAt": "2026-01-10T10:15:11.355Z",
+      "valueScore": 5,
+      "optionLabel": "5 — Very high"
+    },
+    {
+      "questionId": "MA-17",
+      "timeMs": 1626,
+      "answeredAt": "2026-01-10T10:15:12.988Z",
+      "valueScore": 4,
+      "optionLabel": "Delay the decision — ‘something smells off’"
+    },
+    {
+      "questionId": "MA-18",
+      "timeMs": 1260,
+      "answeredAt": "2026-01-10T10:15:14.258Z",
+      "valueScore": 4,
+      "optionLabel": "Reduce scope to a minimum and run a test step"
+    },
+    {
+      "questionId": "AC-07",
+      "timeMs": 1288,
+      "answeredAt": "2026-01-10T10:15:15.558Z",
+      "valueScore": 4,
+      "optionLabel": "Block access and return strictly to priorities"
+    },
+    {
+      "questionId": "AC-08",
+      "timeMs": 27505,
+      "answeredAt": "2026-01-10T10:15:43.077Z",
+      "text": "assasasasssssssssssssasasasa asdasdasd asddasdasdasd asdasdasd asdasdasd asdasdasd asdasd"
+    },
+    {
+      "questionId": "AC-19",
+      "timeMs": 2785,
+      "answeredAt": "2026-01-10T10:15:45.873Z",
+      "valueScore": 1,
+      "optionLabel": "Trust it will self-correct"
+    },
+    {
+      "questionId": "AC-20",
+      "timeMs": 1939,
+      "answeredAt": "2026-01-10T10:15:47.823Z",
+      "valueScore": 3,
+      "optionLabel": "‘Wait for full data to avoid mistakes’"
+    },
+    {
+      "questionId": "PR-09",
+      "timeMs": 2024,
+      "answeredAt": "2026-01-10T10:15:49.855Z",
+      "valueScore": 1,
+      "optionLabel": "Delay the decision"
+    },
+    {
+      "questionId": "PR-10",
+      "timeMs": 1677,
+      "answeredAt": "2026-01-10T10:15:51.540Z",
+      "valueScore": 1,
+      "optionLabel": "I don’t recall"
+    },
+    {
+      "questionId": "PR-21",
+      "timeMs": 1674,
+      "answeredAt": "2026-01-10T10:15:53.224Z",
+      "valueScore": 4,
+      "optionLabel": "Move to 1:1 and separate emotion from merit"
+    },
+    {
+      "questionId": "ED-12",
+      "timeMs": 2039,
+      "answeredAt": "2026-01-10T10:15:55.275Z",
+      "valueScore": 5,
+      "optionLabel": "The means define the leader, not the goal"
+    },
+    {
+      "questionId": "ED-11",
+      "timeMs": 7540,
+      "answeredAt": "2026-01-10T10:16:02.828Z",
+      "text": "asdasdasd asdasdasd asdasd asdasdasd"
+    },
+    {
+      "questionId": "ED-22",
+      "timeMs": 2103,
+      "answeredAt": "2026-01-10T10:16:04.940Z",
+      "valueScore": 4,
+      "optionLabel": "Commission an audit/compliance reset"
+    }
+  ]
+}

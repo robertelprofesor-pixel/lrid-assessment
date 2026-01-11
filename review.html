@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LRID™ Review Panel</title>
+  <style>
+    body{
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      max-width: 1100px;
+      margin: 24px auto;
+      padding: 0 16px;
+      color:#111;
+    }
+    header{
+      display:flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+    h1{ margin:0; font-size: 26px; }
+    .muted{ color:#666; font-size: 13px; line-height:1.35; }
+    .grid{
+      display:grid;
+      grid-template-columns: 360px 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+    .card{
+      border:1px solid #ddd;
+      border-radius: 16px;
+      padding: 14px;
+      background:#fff;
+    }
+    .list{
+      display:flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+      max-height: 520px;
+      overflow:auto;
+      padding-right: 6px;
+    }
+    .item{
+      border:1px solid #eee;
+      border-radius: 12px;
+      padding: 10px;
+      background:#fafafa;
+      cursor:pointer;
+    }
+    .item:hover{ border-color:#ddd; }
+    .item.active{
+      border-color:#111;
+      background:#fff;
+    }
+    .row{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .mono{ font-family: ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    button{
+      padding: 10px 12px;
+      border-radius: 12px;
+      border:1px solid #111;
+      background:#111;
+      color:#fff;
+      font-weight: 650;
+      cursor:pointer;
+    }
+    button.secondary{
+      background:#fff;
+      color:#111;
+    }
+    button:disabled{ opacity:.55; cursor:not-allowed; }
+    .actions{
+      display:flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .status{
+      display:none;
+      margin: 12px 0;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border:1px solid #ddd;
+      white-space: pre-wrap;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+    .status.ok{ display:block; background:#f2fff5; border-color:#bde7c6; color:#145a22; }
+    .status.err{ display:block; background:#fff3f3; border-color:#f2bcbc; color:#8a1f1f; }
+
+    .pill{
+      display:inline-block;
+      padding:2px 8px;
+      border-radius: 999px;
+      border:1px solid #ddd;
+      font-size: 12px;
+      color:#333;
+      background:#fff;
+    }
+
+    .kpi{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .box{
+      border:1px solid #eee;
+      border-radius: 14px;
+      padding: 10px;
+      background:#fafafa;
+    }
+    .box b{ display:block; margin-bottom: 6px; }
+    textarea{
+      width:100%;
+      border:1px solid #ddd;
+      border-radius: 12px;
+      padding: 10px;
+      font-family: inherit;
+      font-size: 14px;
+      line-height: 1.35;
+      resize: vertical;
+      background:#fff;
+      min-height: 88px;
+    }
+    .radioRow{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .radioBtn{
+      border:1px solid #ddd;
+      border-radius: 999px;
+      padding: 8px 12px;
+      background:#fff;
+      cursor:pointer;
+      user-select:none;
+      font-weight: 650;
+      font-size: 13px;
+    }
+    .radioBtn.active{
+      border-color:#111;
+      background:#111;
+      color:#fff;
+    }
+    ul{ margin: 8px 0 0 18px; padding:0; }
+    .links a{
+      display:inline-block;
+      margin-right: 12px;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>LRID™ Review Panel</h1>
+      <div class="muted">Select a draft → choose decision → save → finalize → PDFs.</div>
+    </div>
+    <div class="muted">
+      <a href="/" style="margin-right:12px;">← Intake</a>
+      <span class="pill">Local</span>
+    </div>
+  </header>
+
+  <div id="status" class="status"></div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="row">
+        <div>
+          <b>Draft cases</b><br>
+          <span class="muted">Files: <span class="mono">data/draft_*.json</span></span>
+        </div>
+        <button class="secondary" id="btnRefresh">Refresh</button>
+      </div>
+
+      <div id="draftList" class="list"></div>
+
+      <div class="muted" style="margin-top:10px;">
+        Empty list = no draft files yet.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <div>
+          <b>Selected case</b><br>
+          <span class="muted mono" id="selectedDraftLabel">None</span>
+        </div>
+        <div class="pill" id="caseIdPill">Case: —</div>
+      </div>
+
+      <div class="actions">
+        <button id="btnCreateTemplate" disabled>Create approval template</button>
+        <button class="secondary" id="btnLoadApproval" disabled>Load approval</button>
+      </div>
+
+      <hr style="border:none;border-top:1px solid #eee;margin:14px 0;">
+
+      <b>Decision</b>
+      <div class="muted">This is your human-in-the-loop gate. It will be saved to approvals/.</div>
+
+      <div class="radioRow" id="decisionRow">
+        <div class="radioBtn" data-status="APPROVE">APPROVE</div>
+        <div class="radioBtn" data-status="ADJUST">ADJUST</div>
+        <div class="radioBtn" data-status="DEBRIEF">DEBRIEF</div>
+      </div>
+
+      <div style="margin-top:10px;">
+        <div class="muted"><b>Operator notes</b></div>
+        <textarea id="operatorNotes" placeholder="Short decision notes for audit trail…"></textarea>
+      </div>
+
+      <div class="kpi">
+        <div class="box">
+          <b>Executive summary override (optional)</b>
+          <textarea id="ovExec" placeholder="If you want to rewrite/strengthen the executive summary…"></textarea>
+        </div>
+        <div class="box">
+          <b>Risk notes override (optional)</b>
+          <textarea id="ovRisk" placeholder="Add/adjust risk framing…"></textarea>
+        </div>
+      </div>
+
+      <div style="margin-top:10px;">
+        <div class="muted"><b>Recommendations override (optional)</b></div>
+        <textarea id="ovRecs" placeholder="Add/adjust recommendations…"></textarea>
+      </div>
+
+      <div class="actions">
+        <button id="btnSaveApproval" disabled>Save approval</button>
+        <button id="btnFinalize" disabled>Finalize &amp; Generate PDFs</button>
+      </div>
+
+      <div class="links" id="pdfLinks"></div>
+
+      <hr style="border:none;border-top:1px solid #eee;margin:14px 0;">
+
+      <b>Draft snapshot</b>
+      <div class="muted">Quick summary (not raw JSON).</div>
+
+      <div class="kpi">
+        <div class="box">
+          <b>Validation</b>
+          <div id="kpiValidation" class="muted">—</div>
+        </div>
+        <div class="box">
+          <b>Confidence</b>
+          <div id="kpiConfidence" class="muted">—</div>
+        </div>
+      </div>
+
+      <div class="kpi">
+        <div class="box">
+          <b>Consistency checks</b>
+          <div id="kpiConsistency" class="muted">—</div>
+        </div>
+        <div class="box">
+          <b>Red flags</b>
+          <div id="kpiRedFlags" class="muted">—</div>
+        </div>
+      </div>
+
+      <div class="box" style="margin-top:10px;">
+        <b>Soft warnings</b>
+        <div id="kpiWarnings" class="muted">—</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/review.js?v=2025-12-21-02" defer></script>
+</body>
+</html>

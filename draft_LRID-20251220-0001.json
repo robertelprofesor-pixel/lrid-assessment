@@ -1,0 +1,157 @@
+{
+  "meta": {
+    "case_id": "LRID-20251220-0001",
+    "instrument_id": "LRID",
+    "instrument_version": "1.0",
+    "generated_at": "2025-12-20T18:33:00+04:00",
+    "generated_by": { "engine": "lrid-draft-engine", "engine_version": "0.1.0" }
+  },
+
+  "validation": {
+    "status": "PASS",
+    "hard_errors": [],
+    "soft_warnings": ["Open-text length low for ED_03 (recommended ≥ 30 chars)"],
+    "completeness": {
+      "expected_questions": 84,
+      "answered_questions": 84,
+      "missing_question_ids": []
+    },
+    "timing_checks": {
+      "duration_seconds": 2670,
+      "min_expected_seconds": 900,
+      "flag_too_fast": false
+    },
+    "pattern_checks": {
+      "flag_straight_lining": false,
+      "flag_low_variance": false,
+      "notes": "Normal response variance observed."
+    }
+  },
+
+  "confidence": {
+    "level": "Medium",
+    "score": 0.74,
+    "drivers": ["CC_02 mismatch", "ED risk signal in open-text"],
+    "notes": "Proceed with expert review; no hard-blockers."
+  },
+
+  "consistency_checks": {
+    "status": "ATTENTION",
+    "items": [
+      {
+        "cc_id": "CC_02",
+        "description": "Values vs. exception tolerance (mirror set)",
+        "result": "MISMATCH",
+        "severity": "MEDIUM",
+        "evidence": {
+          "question_ids": ["ED_03", "DI_06", "CC_02"],
+          "observations": "High integrity claims co-occur with exception acceptance under deadlines."
+        }
+      }
+    ]
+  },
+
+  "red_flags": {
+    "high_stakes": {
+      "status": "ON",
+      "triggers": ["RF_ETH_01", "RF_PWR_02"]
+    },
+    "items": [
+      {
+        "rf_id": "RF_ETH_01",
+        "title": "Procedural exception normalization",
+        "status": "PRESENT",
+        "severity": "HIGH",
+        "evidence": {
+          "question_ids": ["ED_03"],
+          "snippets": ["...bypass a step if the deadline is non-negotiable..."]
+        },
+        "system_rationale": "Exception accepted + rationale indicates potential normalization under pressure."
+      },
+      {
+        "rf_id": "RF_PWR_02",
+        "title": "Reduced openness to correction under time pressure",
+        "status": "LIKELY",
+        "severity": "MEDIUM",
+        "evidence": {
+          "question_ids": ["PR_04"],
+          "snippets": ["...in a crisis someone must decide..."]
+        },
+        "system_rationale": "Language suggests narrowing of corrective bandwidth during crisis."
+      }
+    ]
+  },
+
+  "draft_scoring": {
+    "dimension_scores": {
+      "DI": 3.4,
+      "RP": 4.0,
+      "MA": 3.0,
+      "AC": 3.1,
+      "PR": 2.9,
+      "ED": 2.7
+    },
+    "dimension_bands": {
+      "DI": "Functional Strength",
+      "RP": "Functional Strength",
+      "MA": "Mixed / Context-dependent",
+      "AC": "Mixed / Context-dependent",
+      "PR": "Mixed / Context-dependent",
+      "ED": "Risk Zone"
+    },
+    "aggregate_scores": {
+      "hsri": 2.95,
+      "oi": 3.25
+    },
+    "aggregate_bands": {
+      "hsri": "Mixed / Context-dependent",
+      "oi": "Functional Strength"
+    },
+    "scoring_notes": "Rule-based scoring. High-stakes ON due to ED/PR risk signals."
+  },
+
+  "draft_narrative": {
+    "executive_thesis_sentence": "Decisive delivery under pressure with emerging risk of procedural exception normalization and reduced openness to correction when time constraints dominate.",
+    "top_assets": [
+      "Clear ownership of outcomes and accountability mindset",
+      "Ability to execute and prioritize under ambiguity"
+    ],
+    "top_risks": [
+      "Ethical drift risk through repeated procedural exceptions",
+      "Feedback channel narrowing during crisis decision cycles"
+    ],
+    "actions_30_days": [
+      "Introduce decision logs for any exception (who/why/impact/compensating controls)",
+      "Implement a structured dissent step for high-stakes calls (2-minute challenge rule)"
+    ],
+    "hr_role_fit_summary": "Strong operational fit; recommend governance reinforcement and feedback loop strengthening for crisis contexts.",
+    "academic_profile_statement": "A pragmatic decision-maker balancing speed with governance guardrails.",
+    "academic_tradeoffs": "Speed and autonomy vs. correction bandwidth and procedural rigor.",
+    "academic_cc_overview": "Consistency checks indicate pressure-driven variability in ethical boundary tolerance."
+  },
+
+  "explainability": {
+    "dimension_drivers": [
+      {
+        "dimension": "ED",
+        "drivers": [
+          {
+            "type": "rule",
+            "rule_id": "ED_RULE_03",
+            "impact": -0.3,
+            "evidence": {
+              "question_ids": ["ED_03"],
+              "observations": "Exception acceptance language indicates normalization risk."
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  "handoff": {
+    "recommended_expert_action": "REVIEW",
+    "recommended_reason": "High-stakes triggers present; expert confirmation required before payload generation.",
+    "auto_generate_payload_allowed": false
+  }
+}

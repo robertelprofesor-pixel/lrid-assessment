@@ -1,0 +1,56 @@
+{
+  "instrument_id": "LRID",
+  "instrument_version": "1.0",
+
+  "expected_questions": 84,
+  "min_expected_seconds": 900,
+
+  "bands": {
+    "risk_zone_max": 2.79,
+    "mixed_max": 3.30
+  },
+
+  "questions": [
+    { "id": "DI_01", "dimension": "DI", "type": "likert_5", "required": true },
+    { "id": "RP_01", "dimension": "RP", "type": "likert_5", "required": true },
+    { "id": "MA_01", "dimension": "MA", "type": "likert_5", "required": true },
+    { "id": "AC_01", "dimension": "AC", "type": "likert_5", "required": true },
+    { "id": "PR_01", "dimension": "PR", "type": "likert_5", "required": true },
+    { "id": "ED_01", "dimension": "ED", "type": "likert_5", "required": true },
+
+    { "id": "ED_03", "dimension": "ED", "type": "open_text", "required": true, "min_chars": 30 },
+
+    { "id": "CC_01", "dimension": "CC", "type": "consistency_check", "required": true }
+  ],
+
+  "consistency_sets": [
+    {
+      "cc_id": "CC_02",
+      "description": "Values vs. exception tolerance (mirror set)",
+      "question_ids": ["ED_03", "DI_06", "CC_02"]
+    }
+  ],
+
+  "red_flag_rules": [
+    {
+      "rf_id": "RF_ETH_01",
+      "title": "Procedural exception normalization",
+      "applies_to_dimensions": ["ED"],
+      "trigger": {
+        "open_text_question_ids": ["ED_03"],
+        "keywords_any": ["bypass", "skip", "ignore", "exception", "deadline", "non-negotiable", "shortcut"]
+      },
+      "severity_if_triggered": "HIGH"
+    },
+    {
+      "rf_id": "RF_PWR_02",
+      "title": "Reduced openness to correction under time pressure",
+      "applies_to_dimensions": ["PR"],
+      "trigger": {
+        "open_text_question_ids": ["PR_04"],
+        "keywords_any": ["no time", "must decide", "decided myself", "ignore feedback", "crisis"]
+      },
+      "severity_if_triggered": "MEDIUM"
+    }
+  ]
+}

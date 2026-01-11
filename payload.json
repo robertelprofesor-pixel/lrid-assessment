@@ -1,0 +1,57 @@
+{
+  "meta": {
+    "subject_name": "LRID-20260110-0455",
+    "report_date": "2026-01-10",
+    "version": "LRID v1.0",
+    "use_limitations": "This report is a decision-support diagnostic for leadership development. It is not a psychological, medical, or psychiatric assessment.",
+    "data_ethics_note": "Results should be interpreted by qualified professionals within an organizational or educational context.",
+    "what_it_measures": "Decision integrity, resilience under pressure, manipulation awareness, attention control, power handling, and ethical drift resistance.",
+    "what_it_does_not_measure": "Personality traits, intelligence, emotional disorders, or mental health conditions.",
+    "limitations": "Results depend on context, pressure level, response accuracy, and situational variables at the time of assessment."
+  },
+  "confidence": {
+    "score": "0.78",
+    "level": "Medium"
+  },
+  "scores": {
+    "hsri": "3.67",
+    "oi": "3.53"
+  },
+  "bands": {
+    "hsri": "Strong / Stable",
+    "oi": "Strong / Stable"
+  },
+  "high_stakes": {
+    "status": "OFF"
+  },
+  "exec": {
+    "thesis_sentence": "Generally stable leadership judgment profile with consistent decision discipline across pressure contexts."
+  },
+  "tables": {
+    "exec_dimensions_rows": "<tr><td>Decision Integrity (DI)</td><td>4.50</td><td>Strong</td><td>Generally stable behavior under typical pressure.</td></tr><tr><td>Responsibility & Ownership (RP)</td><td>3.25</td><td>Mixed</td><td>Context-sensitive; needs guardrails in high-pressure decisions.</td></tr><tr><td>Manipulation Awareness (MA)</td><td>4.25</td><td>Strong</td><td>Generally stable behavior under typical pressure.</td></tr><tr><td>Attention Control (AC)</td><td>2.67</td><td>Risk Zone</td><td>Elevated risk signals; requires targeted intervention.</td></tr><tr><td>Power & Correction (PR)</td><td>2.00</td><td>Risk Zone</td><td>Elevated risk signals; requires targeted intervention.</td></tr><tr><td>Ethical Drift Resistance (ED)</td><td>4.50</td><td>Strong</td><td>Generally stable behavior under typical pressure.</td></tr>"
+  },
+  "lists": {
+    "exec_top_assets_li": "<li>Clear ownership of outcomes and decision follow-through</li><li>Stable ethical boundary management under pressure</li><li>Effective prioritization and attention control</li>",
+    "exec_top_risks_li": "<li>Risk of inconsistency when time pressure is extreme</li><li>Potential blind spots in correction openness under authority pressure</li><li>Attention overload periods reducing decision quality</li>",
+    "exec_30day_actions_li": "<li>Introduce a decision log for high-stakes calls (criteria + alternatives + consequences)</li><li>Apply a 2-minute challenge rule: one dissent voice must be heard before final decision</li><li>Create a red-flag checklist for ethics and governance exceptions</li>",
+    "hr_strengths_safeguards_li": "<li>Clear ownership of outcomes and decision follow-through</li><li>Stable ethical boundary management under pressure</li><li>Effective prioritization and attention control</li>",
+    "hr_development_actions_li": "<li>Risk of inconsistency when time pressure is extreme</li><li>Potential blind spots in correction openness under authority pressure</li><li>Attention overload periods reducing decision quality</li>",
+    "hr_interventions_li": "<li>Introduce a decision log for high-stakes calls (criteria + alternatives + consequences)</li><li>Apply a 2-minute challenge rule: one dissent voice must be heard before final decision</li><li>Create a red-flag checklist for ethics and governance exceptions</li>",
+    "academic_reflection_prompts_li": "<li>Which dimension shows the highest variability under pressure and why?</li><li>What would improve correction openness in your decision cycle?</li><li>Where do you most often trade ethics for speed?</li>"
+  },
+  "blocks": {
+    "exec_red_flags": "<ul><li>No critical red flags detected in aggregate scoring.</li></ul>",
+    "hr_dimension_cards": "<p><b>DI/RP/MA/AC/PR/ED</b> summaries derived from 22-item instrument scoring.</p>",
+    "hr_risks": "<ul><li>Risk of inconsistency when time pressure is extreme</li><li>Potential blind spots in correction openness under authority pressure</li><li>Attention overload periods reducing decision quality</li></ul>",
+    "academic_frameworks": "<p>This profile can be interpreted through governance guardrails, decision-cycle design, and bias-mitigation frameworks.</p>",
+    "academic_cc_details": "<ul><li>Consistency checks: not enabled in 22-item version (planned extension).</li></ul>"
+  },
+  "academic": {
+    "profile_statement": "A generally stable decision-maker balancing speed with governance discipline.",
+    "tradeoffs": "Speed and autonomy vs. correction bandwidth and procedural rigor under pressure.",
+    "cc_overview": "Consistency checks are not enabled in the current 22-item version (planned extension)."
+  },
+  "hr": {
+    "role_fit_summary": "Strong operational fit; maintain governance guardrails and keep challenge loops active for high-stakes decisions."
+  }
+}

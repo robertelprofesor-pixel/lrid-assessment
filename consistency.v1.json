@@ -1,0 +1,90 @@
+{
+  "instrument_id": "LRID",
+  "instrument_version": "1.0",
+  "consistency_checks": [
+    {
+      "cc_id": "CC_01",
+      "title": "Ethical absolutism vs ethical drift tolerance",
+      "severity": "HIGH",
+      "logic": {
+        "type": "contradiction_pair",
+        "if": [
+          { "question_id": "ED_12", "equals": "B" }
+        ],
+        "and": [
+          { "question_id": "ED_22", "in": ["A", "C"] }
+        ],
+        "message": "Declared ethics are absolute, but tolerance for exceptions appears elevated."
+      }
+    },
+    {
+      "cc_id": "CC_02",
+      "title": "Anti-manipulation stance vs authority-pressure compliance",
+      "severity": "MEDIUM",
+      "logic": {
+        "type": "contradiction_pair",
+        "if": [
+          { "question_id": "MA_18", "in": ["B", "C", "D"] }
+        ],
+        "and": [
+          { "question_id": "MA_06", "gte_likert": 4 }
+        ],
+        "message": "Strong declared resistance to fear framing, but self-reported susceptibility to power context is high."
+      }
+    },
+    {
+      "cc_id": "CC_03",
+      "title": "Attention discipline claimed vs overload reactivity",
+      "severity": "MEDIUM",
+      "logic": {
+        "type": "contradiction_pair",
+        "if": [
+          { "question_id": "AC_07", "in": ["C", "D"] }
+        ],
+        "and": [
+          { "question_id": "RP_04", "gte_likert": 4 }
+        ],
+        "message": "Attention control is claimed as strong, but overload reaction suggests decision shortcutting risk."
+      }
+    },
+    {
+      "cc_id": "CC_04",
+      "title": "Power maturity claimed vs public-challenge handling",
+      "severity": "HIGH",
+      "logic": {
+        "type": "contradiction_pair",
+        "if": [
+          { "question_id": "PR_10", "in": ["A", "B"] }
+        ],
+        "and": [
+          { "question_id": "PR_21", "in": ["A", "C"] }
+        ],
+        "message": "Self-reported openness to correction conflicts with low-tolerance response to public challenge."
+      }
+    },
+    {
+      "cc_id": "CC_05",
+      "title": "Integrity stance vs ethically grey advantage acceptance",
+      "severity": "HIGH",
+      "logic": {
+        "type": "contradiction_pair",
+        "if": [
+          { "question_id": "DI_01", "in": ["D", "C"] }
+        ],
+        "and": [
+          { "question_id": "DI_13", "equals": "A" }
+        ],
+        "message": "Integrity stance appears inconsistent between information ethics and contract ethics."
+      }
+    }
+  ],
+  "confidence_adjustments": {
+    "base_confidence": 0.85,
+    "per_cc_hit_penalty": {
+      "LOW": 0.03,
+      "MEDIUM": 0.06,
+      "HIGH": 0.10
+    },
+    "floor": 0.55
+  }
+}
