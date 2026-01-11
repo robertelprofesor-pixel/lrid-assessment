@@ -5,13 +5,13 @@
   "type": "commonjs",
   "scripts": {
     "start": "node server.js",
-    "postinstall": "npx playwright install --with-deps chromium",
     "serve:intake": "node server.js",
     "pdf": "node index.js",
     "approve:auto": "node approve_latest.js"
   },
   "dependencies": {
     "express": "^4.19.2",
+    "pdfkit": "^0.15.0",
     "playwright": "^1.57.0"
   }
 }
