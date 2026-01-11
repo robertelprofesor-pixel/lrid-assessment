@@ -1,27 +1,12 @@
 const fs = require("fs");
 const path = require("path");
 const express = require("express");
-const { execFileSync } = require("child_process");
+const { execSync } = require("child_process");
+
+const { STORAGE_ROOT, DATA_DIR, APPROVALS_DIR, OUT_DIR, ensureDir } = require("./storage");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-/**
- * Railway (i inne hostingi) często mają read-only filesystem dla repo.
- * Dlatego dane MUSZĄ iść do volume.
- *
- * Na Railway ustawisz zmienną:
- *   LRID_STORAGE=/data
- *
- * Wtedy:
- *   /data/data        -> responses_*, draft_*, payload_*
- *   /data/approvals   -> approval_*
- *   /data/out         -> pdfy
- */
-const STORAGE_ROOT = process.env.LRID_STORAGE || path.join(__dirname, ".runtime");
-const DATA_DIR = process.env.LRID_DATA_DIR || path.join(STORAGE_ROOT, "data");
-const APPROVALS_DIR = process.env.LRID_APPROVALS_DIR || path.join(STORAGE_ROOT, "approvals");
-const OUT_DIR = process.env.LRID_OUT_DIR || path.join(STORAGE_ROOT, "out");
 
 // =======================
 // Middleware
@@ -29,7 +14,6 @@ const OUT_DIR = process.env.LRID_OUT_DIR || path.join(STORAGE_ROOT, "out");
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
-// Disable caching (prevents stale JS/HTML)
 app.use((req, res, next) => {
   res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
   res.setHeader("Pragma", "no-cache");
@@ -38,18 +22,33 @@ app.use((req, res, next) => {
 });
 
 // =======================
+// Static hosting
+// =======================
+app.use(express.static(path.join(__dirname, "web")));
+app.use("/config", express.static(path.join(__dirname, "config")));
+app.use("/out", express.static(OUT_DIR)); // IMPORTANT: serve from volume
+
+// =======================
 // Helpers
 // =======================
-function ensureDir(p) {
-  if (!fs.existsSync(p)) fs.mkdirSync(p, { recursive: true });
-}
 function readJSON(p) {
   return JSON.parse(fs.readFileSync(p, "utf8"));
 }
 function writeJSON(p, data) {
-  ensureDir(path.dirname(p));
   fs.writeFileSync(p, JSON.stringify(data, null, 2), "utf8");
 }
+
+function safeExec(cmd) {
+  try {
+    return execSync(cmd, { cwd: __dirname, stdio: "pipe" }).toString("utf8");
+  } catch (e) {
+    const out =
+      (e.stdout ? e.stdout.toString("utf8") : "") +
+      (e.stderr ? e.stderr.toString("utf8") : "");
+    throw new Error(out || e.message);
+  }
+}
+
 function isSafeFilename(name) {
   return (
     typeof name === "string" &&
@@ -59,6 +58,7 @@ function isSafeFilename(name) {
     !name.includes("\\")
   );
 }
+
 function listFilesSorted(dir, prefix) {
   if (!fs.existsSync(dir)) return [];
   return fs
@@ -68,53 +68,11 @@ function listFilesSorted(dir, prefix) {
     .sort((a, b) => b.mtime - a.mtime)
     .map((x) => x.file);
 }
+
 function caseIdFromDraftFilename(draftFile) {
   if (!draftFile.startsWith("draft_") || !draftFile.endsWith(".json")) return null;
   return draftFile.replace(/^draft_/, "").replace(/\.json$/, "");
 }
-
-/**
- * Bezpieczne uruchomienie node-skryptu z ustawionymi katalogami runtime.
- * Dzięki temu build_draft.js / approve_case.js / index.js zapisują w volume.
- */
-function runNodeScript(scriptFile, args = []) {
-  const env = {
-    ...process.env,
-    LRID_STORAGE: STORAGE_ROOT,
-    LRID_DATA_DIR: DATA_DIR,
-    LRID_APPROVALS_DIR: APPROVALS_DIR,
-    LRID_OUT_DIR: OUT_DIR
-  };
-
-  try {
-    const out = execFileSync(process.execPath, [path.join(__dirname, scriptFile), ...args], {
-      cwd: __dirname,
-      env,
-      stdio: "pipe"
-    });
-    return out.toString("utf8");
-  } catch (e) {
-    const stdout = e.stdout ? e.stdout.toString("utf8") : "";
-    const stderr = e.stderr ? e.stderr.toString("utf8") : "";
-    const msg = (stdout + "\n" + stderr).trim() || e.message;
-    throw new Error(msg);
-  }
-}
-
-// =======================
-// Init runtime dirs
-// =======================
-ensureDir(STORAGE_ROOT);
-ensureDir(DATA_DIR);
-ensureDir(APPROVALS_DIR);
-ensureDir(OUT_DIR);
-
-// =======================
-// Static hosting
-// =======================
-app.use(express.static(path.join(__dirname, "web"))); // index.html, intake.js, review.html, review.js
-app.use("/config", express.static(path.join(__dirname, "config"))); // questions JSON
-app.use("/out", express.static(OUT_DIR)); // PDFs from volume
 
 // =======================
 // Health
@@ -123,12 +81,12 @@ app.get("/api/health", (req, res) => {
   res.json({
     ok: true,
     time: new Date().toISOString(),
-    storage: { STORAGE_ROOT, DATA_DIR, APPROVALS_DIR, OUT_DIR }
+    storage: { STORAGE_ROOT, DATA_DIR, APPROVALS_DIR, OUT_DIR },
   });
 });
 
 // =======================
-// Intake submit -> saves responses + auto-build draft
+// Intake submit -> DATA_DIR/responses_<case_id>.json
 // =======================
 app.post("/api/intake/submit", (req, res) => {
   try {
@@ -141,31 +99,28 @@ app.post("/api/intake/submit", (req, res) => {
       return res.status(400).json({ ok: false, error: "Missing case_id" });
     }
 
+    ensureDir(DATA_DIR);
+
     const outFile = `responses_${submission.case_id}.json`;
     const outPath = path.join(DATA_DIR, outFile);
 
     writeJSON(outPath, submission);
 
-    // AUTO: build draft immediately so Review Panel sees it
-    // build_draft.js will read responses and write draft_<case_id>.json to DATA_DIR
-    const draftOutput = runNodeScript("build_draft.js", [outPath]);
-
-    return res.json({
-      ok: true,
-      file: `data/${outFile}`,
-      draft: `draft_${submission.case_id}.json`,
-      draftOutput
-    });
+    return res.json({ ok: true, file: `${outPath}` });
   } catch (e) {
     return res.status(500).json({ ok: false, error: e.message });
   }
 });
 
 // =======================
-// Lists (for Review UI)
+// Lists (for UI)
 // =======================
 app.get("/api/list", (req, res) => {
   try {
+    ensureDir(DATA_DIR);
+    ensureDir(APPROVALS_DIR);
+    ensureDir(OUT_DIR);
+
     const responses = listFilesSorted(DATA_DIR, "responses_");
     const drafts = listFilesSorted(DATA_DIR, "draft_");
     const approvals = listFilesSorted(APPROVALS_DIR, "approval_");
@@ -186,8 +141,8 @@ app.get("/api/list", (req, res) => {
         drafts,
         approvals,
         outFolders,
-        hasPayload: fs.existsSync(path.join(DATA_DIR, "payload.json"))
-      }
+        hasPayload: fs.existsSync(path.join(DATA_DIR, "payload.json")),
+      },
     });
   } catch (e) {
     res.status(500).json({ ok: false, error: e.message });
@@ -195,7 +150,7 @@ app.get("/api/list", (req, res) => {
 });
 
 // =======================
-// Read draft JSON (for review panel)
+// Read draft JSON
 // =======================
 app.get("/api/draft/read", (req, res) => {
   try {
@@ -217,7 +172,7 @@ app.get("/api/draft/read", (req, res) => {
 });
 
 // =======================
-// Approval: create template from a draft
+// Approval: create template (auto) from a draft
 // =======================
 app.post("/api/approval/template", (req, res) => {
   try {
@@ -232,8 +187,7 @@ app.post("/api/approval/template", (req, res) => {
       return res.status(404).json({ ok: false, error: "Draft not found" });
     }
 
-    // approve_case.js: if approval missing -> creates template and exits
-    const output = runNodeScript("approve_case.js", [draftPath, "--auto"]).trim();
+    const output = safeExec(`node approve_case.js ${draftPath} --auto`);
 
     const caseId = caseIdFromDraftFilename(draft_file);
     const approvalFile = caseId ? `approval_${caseId}.json` : null;
@@ -267,7 +221,7 @@ app.get("/api/approval/get", (req, res) => {
 });
 
 // =======================
-// Approval: save approval JSON (edited in UI)
+// Approval: save approval JSON
 // =======================
 app.post("/api/approval/save", (req, res) => {
   try {
@@ -280,7 +234,9 @@ app.post("/api/approval/save", (req, res) => {
       return res.status(400).json({ ok: false, error: "Invalid approval payload" });
     }
 
+    ensureDir(APPROVALS_DIR);
     writeJSON(path.join(APPROVALS_DIR, file), approval);
+
     res.json({ ok: true });
   } catch (e) {
     res.status(500).json({ ok: false, error: e.message });
@@ -288,7 +244,7 @@ app.post("/api/approval/save", (req, res) => {
 });
 
 // =======================
-// Finalize: apply approval + generate payload + generate PDFs
+// Finalize: approve -> payload -> PDFs
 // =======================
 app.post("/api/approval/finalize", (req, res) => {
   try {
@@ -303,11 +259,11 @@ app.post("/api/approval/finalize", (req, res) => {
       return res.status(404).json({ ok: false, error: "Draft not found" });
     }
 
-    // 1) Apply approval to draft -> produces payload.json in DATA_DIR
-    const approvalOutput = runNodeScript("approve_case.js", [draftPath]);
+    // 1) This MUST create payload.json in DATA_DIR (approve_case.js does it)
+    const approvalOutput = safeExec(`node approve_case.js ${draftPath}`);
 
-    // 2) Generate PDFs -> reads payload.json and writes to OUT_DIR
-    const pdfOutput = runNodeScript("index.js", []);
+    // 2) Generate PDFs using index.js (which reads payload from DATA_DIR)
+    const pdfOutput = safeExec(`node index.js`);
 
     // 3) Latest out folder
     const latestOut =
@@ -328,9 +284,9 @@ app.post("/api/approval/finalize", (req, res) => {
         ? {
             executive: `/out/${latestOut}/executive.pdf`,
             hr: `/out/${latestOut}/hr.pdf`,
-            academic: `/out/${latestOut}/academic.pdf`
+            academic: `/out/${latestOut}/academic.pdf`,
           }
-        : null
+        : null,
     });
   } catch (e) {
     res.status(500).json({ ok: false, error: e.message });
@@ -343,6 +299,7 @@ app.post("/api/approval/finalize", (req, res) => {
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "web", "index.html"));
 });
+
 app.get("/review", (req, res) => {
   res.sendFile(path.join(__dirname, "web", "review.html"));
 });
@@ -352,8 +309,8 @@ app.get("/review", (req, res) => {
 // =======================
 app.listen(PORT, () => {
   console.log(`✔ LRID™ Server running at http://localhost:${PORT}`);
-  console.log(`- Intake:       http://localhost:${PORT}/`);
-  console.log(`- Review Panel: http://localhost:${PORT}/review`);
-  console.log(`- Health:       http://localhost:${PORT}/api/health`);
-  console.log(`- Storage:      ${STORAGE_ROOT}`);
+  console.log("STORAGE_ROOT:", STORAGE_ROOT);
+  console.log("DATA_DIR:", DATA_DIR);
+  console.log("APPROVALS_DIR:", APPROVALS_DIR);
+  console.log("OUT_DIR:", OUT_DIR);
 });
