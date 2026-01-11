@@ -1,26 +1,20 @@
-/**
- * LRID PDF Generator – index.js (auto-folder per subject+date)
- */
-
 const fs = require("fs");
 const path = require("path");
 const { chromium } = require("playwright");
 
-/* ================================
-   Read files
-================================ */
+const STORAGE_ROOT = process.env.LRID_STORAGE || path.join(__dirname, ".runtime");
+const DATA_DIR = process.env.LRID_DATA_DIR || path.join(STORAGE_ROOT, "data");
+const OUT_DIR = process.env.LRID_OUT_DIR || path.join(STORAGE_ROOT, "out");
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
 }
-
 function readText(filePath) {
   return fs.readFileSync(filePath, "utf8");
 }
-
-/* ================================
-   Template renderer {{a.b.c}}
-================================ */
+function ensureDir(dirPath) {
+  fs.mkdirSync(dirPath, { recursive: true });
+}
 
 function getValueByPath(obj, dottedPath) {
   return dottedPath
@@ -35,71 +29,48 @@ function renderTemplate(html, payload) {
   });
 }
 
-/* ================================
-   Safe folder / filename helper
-================================ */
-
 function slugify(input) {
-  // make it filesystem-safe (mac/windows friendly)
   return String(input || "")
     .trim()
-    .replace(/\s+/g, "_")           // spaces -> _
-    .replace(/[^\w\-]/g, "")        // remove weird chars
-    .replace(/_+/g, "_")            // collapse ___
-    .replace(/^_+|_+$/g, "")        // trim _
+    .replace(/\s+/g, "_")
+    .replace(/[^\w\-]/g, "")
+    .replace(/_+/g, "_")
+    .replace(/^_+|_+$/g, "")
     .slice(0, 80) || "Unknown";
 }
-
-function ensureDir(dirPath) {
-  fs.mkdirSync(dirPath, { recursive: true });
-}
-
-/* ================================
-   HTML → PDF (Chromium)
-================================ */
 
 async function htmlToPdf(html, outputPath) {
   const browser = await chromium.launch();
   const page = await browser.newPage();
-
   await page.setContent(html, { waitUntil: "networkidle" });
 
   await page.pdf({
     path: outputPath,
     format: "A4",
     printBackground: true,
-    margin: {
-      top: "12mm",
-      bottom: "12mm",
-      left: "12mm",
-      right: "12mm"
-    }
+    margin: { top: "12mm", bottom: "12mm", left: "12mm", right: "12mm" }
   });
 
   await browser.close();
 }
 
-/* ================================
-   Main
-================================ */
-
 async function main() {
   console.log("LRID PDF Generator – start");
 
-  // 1) Load payload
-  const payloadPath = path.join(__dirname, "data", "payload.json");
+  const payloadPath = path.join(DATA_DIR, "payload.json");
+  if (!fs.existsSync(payloadPath)) {
+    throw new Error(`payload.json not found in DATA_DIR: ${payloadPath}`);
+  }
+
   const payload = readJson(payloadPath);
 
-  // 2) Build output folder name: out/<Subject>_<Date>
   const subjectName = getValueByPath(payload, "meta.subject_name") || "Unknown";
   const reportDate = getValueByPath(payload, "meta.report_date") || "NoDate";
 
   const folderName = `${slugify(subjectName)}_${slugify(reportDate)}`;
-  const outDir = path.join(__dirname, "out", folderName);
-
+  const outDir = path.join(OUT_DIR, folderName);
   ensureDir(outDir);
 
-  // 3) Reports to generate (saved inside that folder)
   const reports = [
     { template: "templates/executive.html", file: "executive.pdf" },
     { template: "templates/hr.html", file: "hr.pdf" },
@@ -114,13 +85,13 @@ async function main() {
     const outputPath = path.join(outDir, r.file);
 
     await htmlToPdf(renderedHtml, outputPath);
-    console.log("✔ Created:", path.join("out", folderName, r.file));
+    console.log("✔ Created:", path.join(folderName, r.file));
   }
 
-  console.log("DONE. PDFs are in:", path.join("out", folderName));
+  console.log("DONE. PDFs are in:", outDir);
 }
 
-main().catch((error) => {
-  console.error("ERROR:", error);
+main().catch((err) => {
+  console.error("ERROR:", err);
   process.exit(1);
 });
